@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rounded Hexagon Goal Splash</title>
+<title>Live Match Demo</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -124,7 +124,7 @@ body {
   100% { transform: translate(-50%, -60px) scale(1); opacity: 0; }
 }
 
-/* SVG hexagon container */
+/* Hexagon splash for goal */
 .hex-splash {
   position: absolute;
   width: 70px;
@@ -136,18 +136,36 @@ body {
   transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
+/* Full-time ash hexagon */
+.fulltime-glow {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+}
 </style>
 </head>
 <body>
 
 <div class="scoreboard" id="scoreboard">
 
-  <!-- SVG rounded hexagon -->
+  <!-- Goal hexagon -->
   <svg class="hex-splash" id="hexSplash" viewBox="0 0 100 100">
-    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="rgba(0,123,255,0.3)" stroke="none" />
+    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" 
+          fill="rgba(0,123,255,0.3)" stroke="none" />
   </svg>
 
-  <div class="match-status" id="matchStatus">Live 35'</div>
+  <!-- Full-time glow -->
+  <svg class="fulltime-glow" id="fulltimeGlow" viewBox="0 0 100 100">
+    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" 
+          fill="rgba(200,200,200,0.15)" stroke="none" />
+  </svg>
+
+  <div class="match-status" id="matchStatus">Live 89'</div>
 
   <div class="match-header">
     <div class="team" id="manutdTeam">
@@ -155,9 +173,9 @@ body {
       <div class="team-name">Man Utd</div>
     </div>
 
-    <div class="score" id="score">1 : 0</div>
+    <div class="score" id="score">2 : 0</div>
 
-    <div class="team">
+    <div class="team" id="liverpoolTeam">
       <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
       <div class="team-name">Liverpool</div>
     </div>
@@ -182,18 +200,21 @@ const matchStatus = document.getElementById('matchStatus');
 const goalScorersEl = document.getElementById('goalScorers');
 const scoreboard = document.getElementById('scoreboard');
 const hexSplash = document.getElementById('hexSplash');
+const fulltimeGlow = document.getElementById('fulltimeGlow');
 const manutdTeam = document.getElementById('manutdTeam');
+const liverpoolTeam = document.getElementById('liverpoolTeam');
 
-function manUtdGoal() {
-  // Expand logo
-  manutdTeam.style.transform = "scale(1.3)";
+// Function: Liverpool scores at 89'
+function liverpoolGoal() {
+  // Expand Liverpool logo
+  liverpoolTeam.style.transform = "scale(1.3)";
 
   // Animate score
-  scoreEl.textContent = '2 : 0';
+  scoreEl.textContent = '2 : 1';
   scoreEl.classList.add('updated');
 
-  // Hexagon splash position over logo
-  const rect = manutdTeam.getBoundingClientRect();
+  // Hexagon splash position over Liverpool logo
+  const rect = liverpoolTeam.getBoundingClientRect();
   const boardRect = scoreboard.getBoundingClientRect();
   const left = rect.left - boardRect.left + rect.width/2;
   const top = rect.top - boardRect.top + rect.height/2;
@@ -202,35 +223,52 @@ function manUtdGoal() {
   hexSplash.style.transform = 'translate(-50%, -50%) scale(2)';
   hexSplash.style.opacity = '1';
 
-  // Shrink hexagon after 0.6s
+  // Remove hex and logo pop after 0.8s
   setTimeout(() => {
     hexSplash.style.transform = 'translate(-50%, -50%) scale(0)';
     hexSplash.style.opacity = '0';
-  }, 600);
-
-  // +1 bubble
-  const plus1 = document.createElement('div');
-  plus1.className = 'plus1';
-  plus1.textContent = '+1';
-  scoreboard.appendChild(plus1);
+    liverpoolTeam.style.transform = "scale(1)";
+    scoreEl.classList.remove('updated');
+  }, 800);
 
   // Add goal scorer
-  goalScorersEl.children[0].innerHTML += "<br>P. Smith 36'";
+  goalScorersEl.children[1].innerHTML += "<br>J. Matip 89'";
 
   // Update match status
-  matchStatus.textContent = 'Live 36\'';
-
-  // Reset logo and remove bubble
-  setTimeout(() => {
-    scoreEl.classList.remove('updated');
-    manutdTeam.style.transform = "scale(1)";
-    plus1.remove();
-  }, 1200);
+  matchStatus.textContent = 'Live 89\'';
 }
 
-// Simulate goal after 2 seconds
-setTimeout(manUtdGoal, 2000);
+// Function: Full-time effect on Man U
+function fullTime() {
+  const logoEl = manutdTeam;
+
+  const rect = logoEl.getBoundingClientRect();
+  const boardRect = scoreboard.getBoundingClientRect();
+  const left = rect.left - boardRect.left + rect.width/2;
+  const top = rect.top - boardRect.top + rect.height/2;
+  fulltimeGlow.style.left = left + 'px';
+  fulltimeGlow.style.top = top + 'px';
+
+  fulltimeGlow.style.transform = 'translate(-50%, -50%) scale(2)';
+  fulltimeGlow.style.opacity = '0.15';
+  logoEl.style.transform = 'scale(1.2)';
+
+  // Reset logo after 1.2s
+  setTimeout(() => {
+    fulltimeGlow.style.transform = 'translate(-50%, -50%) scale(1)';
+    logoEl.style.transform = 'scale(1)';
+  }, 1200);
+
+  matchStatus.textContent = "Full Time";
+}
+
+// Simulate Liverpool goal after 2s
+setTimeout(liverpoolGoal, 2000);
+
+// Simulate full-time after 4s
+setTimeout(fullTime, 4000);
+
 </script>
 
 </body>
-</html>
+  </html>
