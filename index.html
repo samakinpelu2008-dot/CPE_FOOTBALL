@@ -15,22 +15,22 @@ body {
 
 /* Scoreboard card */
 .scoreboard {
-  width: 540px;
+  width: 520px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 20px;
 }
 
-/* Match status */
+/* Match status (Live / FT / HT) */
 .match-status {
   text-align: center;
-  color: #777;
   font-size: 14px;
+  color: #777;
   margin-bottom: 12px;
 }
 
-/* Header with logos + names */
+/* Header with team logos + names */
 .match-header {
   display: flex;
   justify-content: space-between;
@@ -66,7 +66,7 @@ body {
   text-align: center;
 }
 
-/* Center line with ball */
+/* Center line with ball icon */
 .center-line {
   position: relative;
   height: 2px;
@@ -83,7 +83,7 @@ body {
   padding: 0 6px;
 }
 
-/* Score number */
+/* Centered score */
 .score {
   text-align: center;
   font-size: 48px;
@@ -96,15 +96,13 @@ body {
 
 <div class="scoreboard">
 
-  <!-- Match status -->
+  <!-- Match Status -->
   <div class="match-status">Full Time</div>
 
   <!-- Teams + Logos -->
   <div class="match-header">
     <div class="team">
-      <img class="team-logo"
-           src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png"
-           alt="Man Utd">
+      <img class="team-logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd Logo">
       <div class="team-name">Man Utd</div>
       <div class="goal-scorers">
         K. Harbert 35'<br>
@@ -113,9 +111,7 @@ body {
     </div>
 
     <div class="team">
-      <img class="team-logo"
-           src="https://freepngimg.com/thumb/liverpool/7-2-liverpool-logo-png.png"
-           alt="Liverpool">
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
       <div class="team-name">Liverpool</div>
       <div class="goal-scorers">
         M. Salah 50'
@@ -123,7 +119,7 @@ body {
     </div>
   </div>
 
-  <!-- Line with ball -->
+  <!-- Center line with ball -->
   <div class="center-line"></div>
 
   <!-- Score -->
