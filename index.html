@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Match Demo</title>
+<title>Interactive Live Match</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -12,7 +12,6 @@ body {
   justify-content: center;
   margin: 50px 0;
 }
-
 .scoreboard {
   width: 90%;
   max-width: 520px;
@@ -23,7 +22,6 @@ body {
   position: relative;
   overflow: hidden;
 }
-
 .match-status {
   text-align: center;
   font-size: 14px;
@@ -31,7 +29,6 @@ body {
   margin-bottom: 12px;
   font-weight: bold;
 }
-
 .match-header {
   display: flex;
   justify-content: space-between;
@@ -39,7 +36,6 @@ body {
   margin-bottom: 12px;
   position: relative;
 }
-
 .team {
   display: flex;
   flex-direction: column;
@@ -47,8 +43,8 @@ body {
   width: 90px;
   transition: transform 0.4s ease;
   position: relative;
+  cursor: pointer; /* clickable for goal */
 }
-
 .team-logo {
   width: 35px;
   height: 35px;
@@ -56,13 +52,11 @@ body {
   margin-bottom: 4px;
   transition: transform 0.4s ease;
 }
-
 .team-name {
   font-weight: bold;
   font-size: 14px;
   text-align: center;
 }
-
 .score {
   font-size: 36px;
   font-weight: bold;
@@ -70,13 +64,11 @@ body {
   width: 100px;
   transition: all 0.4s ease-in-out;
 }
-
 .score.updated {
   color: #28a745;
   text-shadow: 0 0 12px #28a745;
   transform: scale(1.5);
 }
-
 .center-line {
   position: relative;
   height: 2px;
@@ -92,7 +84,6 @@ body {
   background: #fff;
   padding: 0 6px;
 }
-
 .goal-scorers {
   display: flex;
   justify-content: space-between;
@@ -104,8 +95,6 @@ body {
   width: 90px;
   text-align: center;
 }
-
-/* +1 bubble */
 .plus1 {
   position: absolute;
   font-weight: bold;
@@ -117,30 +106,15 @@ body {
   animation: floatUp 1s forwards;
   pointer-events: none;
 }
-
 @keyframes floatUp {
   0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
   50% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; }
   100% { transform: translate(-50%, -60px) scale(1); opacity: 0; }
 }
-
-/* Hexagon splash for goal */
 .hex-splash {
   position: absolute;
   width: 70px;
   height: 70px;
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%) scale(0);
-  pointer-events: none;
-  transition: transform 0.6s ease, opacity 0.6s ease;
-}
-
-/* Full-time ash hexagon */
-.fulltime-glow {
-  position: absolute;
-  width: 90px;
-  height: 90px;
   top: 0;
   left: 0;
   transform: translate(-50%, -50%) scale(0);
@@ -153,19 +127,13 @@ body {
 
 <div class="scoreboard" id="scoreboard">
 
-  <!-- Goal hexagon -->
+  <!-- Hexagon for goal -->
   <svg class="hex-splash" id="hexSplash" viewBox="0 0 100 100">
     <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" 
           fill="rgba(0,123,255,0.3)" stroke="none" />
   </svg>
 
-  <!-- Full-time glow -->
-  <svg class="fulltime-glow" id="fulltimeGlow" viewBox="0 0 100 100">
-    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" 
-          fill="rgba(200,200,200,0.15)" stroke="none" />
-  </svg>
-
-  <div class="match-status" id="matchStatus">Live 89'</div>
+  <div class="match-status" id="matchStatus">Live 60'</div>
 
   <div class="match-header">
     <div class="team" id="manutdTeam">
@@ -173,7 +141,7 @@ body {
       <div class="team-name">Man Utd</div>
     </div>
 
-    <div class="score" id="score">2 : 0</div>
+    <div class="score" id="score">0 : 0</div>
 
     <div class="team" id="liverpoolTeam">
       <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
@@ -184,12 +152,8 @@ body {
   <div class="center-line"></div>
 
   <div class="goal-scorers" id="goalScorers">
-    <div>
-      K. Harbert 35'
-    </div>
-    <div>
-      M. Salah 20'
-    </div>
+    <div></div>
+    <div></div>
   </div>
 
 </div>
@@ -200,21 +164,23 @@ const matchStatus = document.getElementById('matchStatus');
 const goalScorersEl = document.getElementById('goalScorers');
 const scoreboard = document.getElementById('scoreboard');
 const hexSplash = document.getElementById('hexSplash');
-const fulltimeGlow = document.getElementById('fulltimeGlow');
 const manutdTeam = document.getElementById('manutdTeam');
 const liverpoolTeam = document.getElementById('liverpoolTeam');
 
-// Function: Liverpool scores at 89'
-function liverpoolGoal() {
-  // Expand Liverpool logo
-  liverpoolTeam.style.transform = "scale(1.3)";
+let score = { manutd: 0, liverpool: 0 };
+let currentMinute = 60;
 
-  // Animate score
-  scoreEl.textContent = '2 : 1';
+// Function to trigger goal animation
+function goalAnimation(teamId, scorer, minute) {
+  const teamEl = document.getElementById(teamId + 'Team');
+
+  // Update score
+  score[teamId]++;
+  scoreEl.textContent = `${score.manutd} : ${score.liverpool}`;
   scoreEl.classList.add('updated');
 
-  // Hexagon splash position over Liverpool logo
-  const rect = liverpoolTeam.getBoundingClientRect();
+  // Hexagon splash over team
+  const rect = teamEl.getBoundingClientRect();
   const boardRect = scoreboard.getBoundingClientRect();
   const left = rect.left - boardRect.left + rect.width/2;
   const top = rect.top - boardRect.top + rect.height/2;
@@ -223,52 +189,40 @@ function liverpoolGoal() {
   hexSplash.style.transform = 'translate(-50%, -50%) scale(2)';
   hexSplash.style.opacity = '1';
 
-  // Remove hex and logo pop after 0.8s
+  // Add goal scorer
+  const col = teamId === 'manutd' ? 0 : 1;
+  goalScorersEl.children[col].innerHTML += `${scorer} ${minute}'<br>`;
+
+  // Update match status
+  matchStatus.textContent = `Live ${minute}'`;
+
+  // Reset animation
   setTimeout(() => {
     hexSplash.style.transform = 'translate(-50%, -50%) scale(0)';
     hexSplash.style.opacity = '0';
-    liverpoolTeam.style.transform = "scale(1)";
+    teamEl.style.transform = 'scale(1)';
     scoreEl.classList.remove('updated');
   }, 800);
 
-  // Add goal scorer
-  goalScorersEl.children[1].innerHTML += "<br>J. Matip 89'";
-
-  // Update match status
-  matchStatus.textContent = 'Live 89\'';
+  // Logo pop
+  teamEl.style.transform = 'scale(1.2)';
+  setTimeout(() => teamEl.style.transform = 'scale(1)', 800);
 }
 
-// Function: Full-time effect on Man U
-function fullTime() {
-  const logoEl = manutdTeam;
-
-  const rect = logoEl.getBoundingClientRect();
-  const boardRect = scoreboard.getBoundingClientRect();
-  const left = rect.left - boardRect.left + rect.width/2;
-  const top = rect.top - boardRect.top + rect.height/2;
-  fulltimeGlow.style.left = left + 'px';
-  fulltimeGlow.style.top = top + 'px';
-
-  fulltimeGlow.style.transform = 'translate(-50%, -50%) scale(2)';
-  fulltimeGlow.style.opacity = '0.15';
-  logoEl.style.transform = 'scale(1.2)';
-
-  // Reset logo after 1.2s
-  setTimeout(() => {
-    fulltimeGlow.style.transform = 'translate(-50%, -50%) scale(1)';
-    logoEl.style.transform = 'scale(1)';
-  }, 1200);
-
-  matchStatus.textContent = "Full Time";
+// Function to handle click on a team
+function teamClick(teamId) {
+  const scorer = prompt("Enter goal scorer name:");
+  if (!scorer) return;
+  const minuteInput = prompt(`Enter minute scored (current ${currentMinute}'):`);
+  const minute = minuteInput ? parseInt(minuteInput) : currentMinute;
+  goalAnimation(teamId, scorer, minute);
 }
 
-// Simulate Liverpool goal after 2s
-setTimeout(liverpoolGoal, 2000);
-
-// Simulate full-time after 4s
-setTimeout(fullTime, 4000);
+// Add click listeners
+manutdTeam.addEventListener('click', () => teamClick('manutd'));
+liverpoolTeam.addEventListener('click', () => teamClick('liverpool'));
 
 </script>
 
 </body>
-  </html>
+</html>
