@@ -14,7 +14,7 @@ body {
 }
 .scoreboard {
   background: #fff;
-  width: 520px;
+  width: 550px;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -22,19 +22,19 @@ body {
   flex-direction: column;
   align-items: center;
 }
-.match-info {
+.match-header {
+  width: 100%;
   display: flex;
   justify-content: space-between;
-  width: 100%;
   align-items: center;
 }
 .team {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 120px;
+  width: 130px;
 }
-.team img {
+.team-logo {
   width: 60px;
   height: 60px;
   margin-bottom: 5px;
@@ -42,24 +42,48 @@ body {
 .team-name {
   font-weight: bold;
   font-size: 16px;
-  margin-bottom: 5px;
 }
 .goal-scorers {
   font-size: 12px;
   color: #555;
   text-align: center;
 }
+.line-container {
+  position: relative;
+  width: 100%;
+  margin: 15px 0;
+}
+.line-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ccc;
+  transform: translateY(-50%);
+}
+.ball-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  background: white;
+  padding: 0 5px;
+}
 .score {
   font-size: 48px;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 .match-stage {
-  margin-top: 12px;
-  color: gray;
   font-size: 14px;
+  color: gray;
+  margin-bottom: 10px;
 }
 .like-btn {
-  margin-top: 15px;
+  margin-top: 10px;
   background: none;
   border: none;
   font-size: 18px;
@@ -76,19 +100,24 @@ body {
 <body>
 
 <div class="scoreboard">
-  <div class="match-info">
+  <div class="match-header">
     <div class="team">
-      <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Manchester_United_FC_crest.svg" alt="ManU Logo">
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest_2023.svg" alt="ManU Logo">
       <div class="team-name">ManU</div>
       <div class="goal-scorers">K. Harbert 35', P. Smith 78'</div>
     </div>
-    <div class="score">2 : 1</div>
     <div class="team">
-      <img src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
       <div class="team-name">Liverpool</div>
       <div class="goal-scorers">M. Salah 50'</div>
     </div>
   </div>
+
+  <div class="line-container">
+    <div class="ball-icon">⚽</div>
+  </div>
+
+  <div class="score">2 : 1</div>
   <div class="match-stage">Full Time</div>
   <button class="like-btn">❤️ <span>128</span></button>
 </div>
