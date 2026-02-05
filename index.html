@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Department Live Match</title>
 <script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <style>
 body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:column; align-items:center; margin:0; padding:0; }
 .scoreboard { width:90%; max-width:520px; background:#fff; border-radius:10px; padding:20px; margin-top:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
@@ -60,11 +62,8 @@ body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:colu
   <button id="sendBtn"><i data-lucide="send"></i></button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-
-// Firebase config
+<script>
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCXEwNI2pRGt5tN_68xhTU7c5McUdz2HL8",
   authDomain: "cpe--football.firebaseapp.com",
@@ -73,50 +72,47 @@ const firebaseConfig = {
   messagingSenderId: "986780347918",
   appId: "1:986780347918:web:eb427cf5dd652cdae6565f"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 
-lucide.createIcons(); // render Lucide icons
+lucide.createIcons(); // render icons
 
-const chatCol = collection(db,'chat');
+// Listen for chat messages in real time
+db.collection('chat').orderBy('timestamp')
+  .onSnapshot(snapshot => {
+    chatBox.innerHTML = '';
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const msgEl = document.createElement('div');
+      msgEl.textContent = data.message;
+      msgEl.className = "message " + (data.sender==='me'?'right':'left');
 
-// Listen for messages
-const q = query(chatCol, orderBy('timestamp'));
-onSnapshot(q, snapshot => {
-  chatBox.innerHTML='';
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
-    const msgEl = document.createElement('div');
-    msgEl.textContent = data.message;
-    msgEl.className = "message "+ (data.sender==='me'?'right':'left');
+      // Long press delete
+      let pressTimer;
+      msgEl.addEventListener('mousedown', ()=>{
+        pressTimer = setTimeout(()=>{
+          if(confirm("Delete this message?")) {
+            db.collection('chat').doc(docSnap.id).delete();
+          }
+        }, 800);
+      });
+      msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
+      msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
 
-    // Long press delete
-    let pressTimer;
-    msgEl.addEventListener('mousedown', ()=>{
-      pressTimer = setTimeout(async ()=>{
-        if(confirm("Delete this message?")) {
-          await deleteDoc(doc(db,'chat',docSnap.id));
-        }
-      },800);
+      chatBox.appendChild(msgEl);
+      chatBox.scrollTop = chatBox.scrollHeight;
     });
-    msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
-    msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
-
-    chatBox.appendChild(msgEl);
-    chatBox.scrollTop = chatBox.scrollHeight;
   });
-});
 
 // Send message
-sendBtn.addEventListener('click', async ()=>{
+sendBtn.addEventListener('click', ()=>{
   const msg = chatInput.value.trim();
   if(!msg) return;
-  await addDoc(chatCol,{
+  db.collection('chat').add({
     message: msg,
     timestamp: Date.now(),
     sender: 'me'
@@ -124,7 +120,8 @@ sendBtn.addEventListener('click', async ()=>{
   chatInput.value='';
 });
 
-chatInput.addEventListener('keypress', async (e)=>{
+// Send with Enter key
+chatInput.addEventListener('keypress', e=>{
   if(e.key==='Enter') sendBtn.click();
 });
 
