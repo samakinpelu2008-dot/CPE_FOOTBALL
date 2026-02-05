@@ -24,26 +24,9 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   position: relative;
 }
-.match-status {
-  text-align: center;
-  font-size: 14px;
-  color: #007bff;
-  margin-bottom: 12px;
-  font-weight: bold;
-}
-.match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 90px;
-  cursor: pointer;
-}
+.match-status { text-align: center; font-size: 14px; color: #007bff; margin-bottom: 12px; font-weight: bold; }
+.match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.team { display: flex; flex-direction: column; align-items: center; width: 90px; cursor: pointer; }
 .team-logo { width: 35px; height: 35px; object-fit: contain; margin-bottom:4px; }
 .team-name { font-weight: bold; font-size:14px; text-align:center; }
 .score { font-size:36px; font-weight:bold; text-align:center; width:100px; }
@@ -79,19 +62,8 @@ body {
   margin-top: 6px;
 }
 
-.message {
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 20px;
-  background: #e0e0e0;
-  position: relative;
-  word-wrap: break-word;
-}
-.message.right {
-  background: #007bff;
-  color: #fff;
-  align-self: flex-end;
-}
+.message { max-width: 70%; padding: 8px 12px; border-radius: 20px; background: #e0e0e0; position: relative; word-wrap: break-word; }
+.message.right { background: #007bff; color: #fff; align-self: flex-end; }
 .message.left { align-self: flex-start; }
 
 .input-container {
@@ -143,51 +115,85 @@ body {
 
 <button id="fullDetailsBtn">FULL MATCH DETAILS</button>
 
-<div class="chat-container" id="chatBox">
-  <!-- Messages appear here -->
-</div>
+<div class="chat-container" id="chatBox"></div>
 
 <div class="input-container">
   <input type="text" id="chatInput" placeholder="Type a message...">
   <button id="sendBtn"><i data-lucide="send"></i></button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
-<script>
-lucide.createIcons();
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCXEwNI2pRGt5tN_68xhTU7c5McUdz2HL8",
+  authDomain: "cpe--football.firebaseapp.com",
+  projectId: "cpe--football",
+  storageBucket: "cpe--football.firebasestorage.app",
+  messagingSenderId: "986780347918",
+  appId: "1:986780347918:web:eb427cf5dd652cdae6565f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 
-const messages = [
-  {text:"Hey, who scored first?", side:"left"},
-  {text:"K.Harbert 36'", side:"right"},
-];
+lucide.createIcons();
 
-function renderMessages() {
-  chatBox.innerHTML="";
-  messages.forEach(m=>{
+const chatCol = collection(db,'chat');
+
+// Render messages in real-time
+const q = query(chatCol, orderBy('timestamp'));
+onSnapshot(q, snapshot => {
+  chatBox.innerHTML='';
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
     const msgEl = document.createElement('div');
-    msgEl.textContent=m.text;
-    msgEl.className="message "+m.side;
-    chatBox.appendChild(msgEl);
-    chatBox.scrollTop=chatBox.scrollHeight;
-  });
-}
+    msgEl.textContent = data.message;
+    msgEl.className = "message "+ (data.sender==='me'?'right':'left');
 
-sendBtn.addEventListener('click', ()=>{
-  const msg = chatInput.value.trim();
-  if(!msg) return;
-  messages.push({text:msg, side:"right"});
-  renderMessages();
-  chatInput.value="";
+    // Long press delete (simulate)
+    let pressTimer;
+    msgEl.addEventListener('mousedown', ()=>{
+      pressTimer = setTimeout(async ()=>{
+        if(confirm("Delete this message?")) {
+          await deleteDoc(doc(db,'chat',docSnap.id));
+        }
+      },800);
+    });
+    msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
+    msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
+
+    chatBox.appendChild(msgEl);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
 });
 
-renderMessages();
+// Send message
+sendBtn.addEventListener('click', async ()=>{
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  await addDoc(chatCol,{
+    message: msg,
+    timestamp: Date.now(),
+    sender: 'me' // mark as yourself
+  });
+  chatInput.value='';
+});
 
-// Full match details button click
-document.getElementById('fullDetailsBtn').addEventListener('click',()=>{
+chatInput.addEventListener('keypress', async (e)=>{
+  if(e.key==='Enter'){
+    sendBtn.click();
+  }
+});
+
+// Full match details button
+document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
   alert("Full match details timeline would appear here.");
 });
 </script>
