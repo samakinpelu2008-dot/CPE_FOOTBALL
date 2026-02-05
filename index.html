@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Department Live Score</title>
+<title>CPE Football Live Score</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; text-align:center; overflow:hidden; }
+body { font-family: Arial; margin:0; text-align:center; overflow:hidden; }
 .scoreboard { background:#f5f5f5; padding:20px; font-size:24px; display:flex; justify-content:space-between; align-items:center; }
 .chat { width:80%; height:200px; margin:20px auto; border:1px solid #ccc; overflow-y:auto; padding:10px; }
 .message { display:flex; justify-content:space-between; margin:5px 0; }
@@ -17,29 +17,24 @@ button { padding:5px 10px; margin-left:5px; cursor:pointer; }
 </head>
 <body>
 
-<!-- Scoreboard -->
 <div class="scoreboard">
   <span id="teamA">Team A</span> <span id="scoreA">0</span> - <span id="scoreB">0</span> <span id="teamB">Team B</span>
   <button id="likeGame">❤️ <span id="gameLikes">0</span></button>
 </div>
 
-<!-- Chat -->
 <div class="chat" id="chat"></div>
 <input type="text" id="chatInput" placeholder="Type message...">
 <button onclick="sendMessage()">Send</button>
 
-<!-- Full Details -->
 <button class="details-btn" onclick="toggleDetails()">FULL DETAILS</button>
 <div class="timeline-popup" id="timelinePopup">
   <button onclick="toggleDetails()">Close</button>
   <ul id="timelineList"></ul>
 </div>
 
-<!-- Admin -->
 <button class="admin-btn" onclick="adminLogin()">Admin</button>
 <div class="admin-panel" id="adminPanel">
   <h2>Admin Panel</h2>
-
   <h3>Team Settings</h3>
   <input placeholder="Team A Name" id="teamAInput"><br>
   <input placeholder="Team B Name" id="teamBInput"><br>
@@ -57,70 +52,91 @@ button { padding:5px 10px; margin-left:5px; cursor:pointer; }
   <button style="background:red; color:white;" onclick="resetAll()">RESET ALL</button>
 </div>
 
-<script>
-let scoreA = 0, scoreB = 0, gameLikes = 0;
-let chatMessages = [];
-let timeline = [];
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
-function updateScoreboard() {
-  document.getElementById("scoreA").innerText = scoreA;
-  document.getElementById("scoreB").innerText = scoreB;
-  document.getElementById("gameLikes").innerText = gameLikes;
-}
+// Your Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCXEwNI2pRGt5tN_68xhTU7c5McUdz2HL8",
+  authDomain: "cpe--football.firebaseapp.com",
+  projectId: "cpe--football",
+  storageBucket: "cpe--football.firebasestorage.app",
+  messagingSenderId: "986780347918",
+  appId: "1:986780347918:web:eb427cf5dd652cdae6565f"
+};
 
-function sendMessage() {
-  const text = document.getElementById("chatInput").value;
-  if(!text) return;
-  const msg = {text: text, likes:0};
-  chatMessages.push(msg);
-  renderChat();
-  document.getElementById("chatInput").value = "";
-}
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-function renderChat() {
+// ----- Realtime Data -----
+const matchRef = ref(db, 'match');
+const chatRef = ref(db, 'chat');
+const timelineRef = ref(db, 'timeline');
+
+// Listen to match
+onValue(matchRef, snapshot => {
+  if(snapshot.exists()){
+    const data = snapshot.val();
+    document.getElementById("teamA").innerText = data.teamA || "Team A";
+    document.getElementById("teamB").innerText = data.teamB || "Team B";
+    document.getElementById("scoreA").innerText = data.scoreA || 0;
+    document.getElementById("scoreB").innerText = data.scoreB || 0;
+    document.getElementById("gameLikes").innerText = data.likes || 0;
+  }
+});
+
+// Listen to chat
+onValue(chatRef, snapshot => {
   const chatDiv = document.getElementById("chat");
   chatDiv.innerHTML = "";
-  chatMessages.forEach((msg, index) => {
-    const div = document.createElement("div");
-    div.className = "message";
-    div.innerHTML = `<span>${msg.text}</span> <span>
-      <button onclick="likeMessage(${index})">❤️ ${msg.likes}</button>
-      <button onclick="deleteMessage(${index})">🗑️</button>
-    </span>`;
-    chatDiv.appendChild(div);
-  });
-}
-
-function likeMessage(index) { chatMessages[index].likes++; renderChat(); }
-function deleteMessage(index) { if(confirm("Delete this message?")) { chatMessages.splice(index,1); renderChat(); } }
-
-document.getElementById("likeGame").onclick = () => { gameLikes++; updateScoreboard(); }
-
-function toggleDetails() {
-  const popup = document.getElementById("timelinePopup");
-  popup.style.display = popup.style.display==="none"?"block":"none";
-  renderTimeline();
-}
-
-function addEvent() {
-  const player = document.getElementById("playerInput").value;
-  const type = document.getElementById("eventType").value;
-  if(!player) return;
-  const time = new Date().getMinutes();
-  timeline.push({player,type,time});
-  if(type==="goal"){
-    if(player.toLowerCase().includes(document.getElementById("teamA").innerText.toLowerCase())) scoreA++;
-    else scoreB++;
-    updateScoreboard();
+  if(snapshot.exists()){
+    const data = snapshot.val();
+    Object.keys(data).forEach(key => {
+      const msg = data[key];
+      const div = document.createElement("div");
+      div.className="message";
+      div.innerHTML=`<span>${msg.text}</span> <span>
+        <button onclick="likeMessage('${key}', ${msg.likes})">❤️ ${msg.likes}</button>
+        <button onclick="deleteMessage('${key}')">🗑️</button>
+      </span>`;
+      chatDiv.appendChild(div);
+    });
   }
-  renderTimeline();
-  document.getElementById("playerInput").value = "";
+});
+
+// Listen to timeline
+onValue(timelineRef, snapshot => {
+  renderTimeline(snapshot.val());
+});
+
+function sendMessage(){
+  const input = document.getElementById("chatInput");
+  if(!input.value) return;
+  push(chatRef, { text: input.value, likes: 0 });
+  input.value="";
 }
 
-function renderTimeline() {
+window.likeMessage = (id, likes) => update(ref(db,'chat/'+id), { likes: likes+1 });
+window.deleteMessage = (id) => { if(confirm("Delete?")) remove(ref(db,'chat/'+id)); }
+
+document.getElementById("likeGame").onclick = async () => {
+  const snap = await get(matchRef);
+  const data = snap.val() || { likes:0, scoreA:0, scoreB:0, teamA:"Team A", teamB:"Team B" };
+  update(matchRef, { ...data, likes: (data.likes||0)+1 });
+}
+
+function toggleDetails(){ 
+  const popup = document.getElementById("timelinePopup");
+  popup.style.display = popup.style.display==="none"?"block":"none"; 
+}
+
+function renderTimeline(data){
   const list = document.getElementById("timelineList");
   list.innerHTML="";
-  timeline.forEach(ev=>{
+  if(!data) return;
+  Object.values(data).forEach(ev=>{
     let icon="";
     if(ev.type==="goal") icon="⚽";
     if(ev.type==="yellow") icon="🟨";
@@ -131,30 +147,46 @@ function renderTimeline() {
   });
 }
 
-function adminLogin() {
+// Admin
+function adminLogin(){
   const pwd = prompt("Enter Admin Password");
-  if(pwd==="CPE2026"){
-    document.getElementById("adminPanel").style.display="block";
-  } else alert("Wrong Password");
+  if(pwd==="CPE2026") document.getElementById("adminPanel").style.display="block";
+  else alert("Wrong Password");
 }
 
-function updateTeams() {
+function updateTeams(){
   const a = document.getElementById("teamAInput").value;
   const b = document.getElementById("teamBInput").value;
-  if(a) document.getElementById("teamA").innerText=a;
-  if(b) document.getElementById("teamB").innerText=b;
+  get(matchRef).then(snap=>{
+    const data = snap.val()||{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"};
+    set(matchRef,{...data, teamA:a||data.teamA, teamB:b||data.teamB});
+  });
 }
 
-function resetAll() {
+function addEvent(){
+  const player = document.getElementById("playerInput").value;
+  const type = document.getElementById("eventType").value;
+  if(!player) return;
+  const time = new Date().getMinutes();
+  const newRef = push(timelineRef);
+  set(newRef,{player,type,time});
+  if(type==="goal"){
+    get(matchRef).then(snap=>{
+      const data = snap.val()||{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"};
+      if(player.toLowerCase().includes(data.teamA.toLowerCase())) data.scoreA++;
+      else data.scoreB++;
+      set(matchRef,data);
+    });
+  }
+  document.getElementById("playerInput").value="";
+}
+
+function resetAll(){
   if(confirm("Reset everything?")){
-    scoreA=0; scoreB=0; gameLikes=0;
-    chatMessages=[]; timeline=[];
-    updateScoreboard(); renderChat(); renderTimeline();
+    set(matchRef,{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"});
+    remove(chatRef); remove(timelineRef);
   }
 }
-
-updateScoreboard();
 </script>
-
 </body>
 </html>
