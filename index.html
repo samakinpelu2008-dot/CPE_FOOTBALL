@@ -3,72 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google‑Style Scoreboard</title>
+<title>Google-Style Scoreboard</title>
 <style>
-
-/* PAGE BASE */
 body {
   font-family: Arial, sans-serif;
   background: #f5f5f5;
-  margin: 0;
-  padding-top: 50px;
   display: flex;
   justify-content: center;
+  margin-top: 50px;
 }
 
-/* MAIN CARD */
+/* Scoreboard card */
 .scoreboard {
   width: 540px;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
 }
 
-/* MATCH STAGE (Live / FT / HT) */
+/* Match status */
 .match-status {
   text-align: center;
-  font-size: 14px;
   color: #777;
-  margin-bottom: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 
-/* HEADER: LOGOS + NAMES */
+/* Header with logos + names */
 .match-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* TEAM BLOCK */
+/* Team block */
 .team {
-  text-align: center;
-  width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
 }
+
 .team-logo {
   width: 55px;
   height: 55px;
   object-fit: contain;
   margin-bottom: 4px;
 }
+
 .team-name {
-  font-size: 15px;
   font-weight: bold;
+  font-size: 15px;
   margin-bottom: 4px;
 }
 
-/* GOAL SCORERS UNDER EACH TEAM */
-.scorers-list {
+/* Goal scorers under each team */
+.goal-scorers {
   font-size: 13px;
-  color: #444;
-  margin-top: 2px;
+  color: #555;
   line-height: 1.3;
+  text-align: center;
 }
 
-/* CENTER LINE WITH BALL */
+/* Center line with ball */
 .center-line {
   position: relative;
-  width: 100%;
   height: 2px;
   background: #e0e0e0;
   margin: 15px 0;
@@ -83,31 +83,30 @@ body {
   padding: 0 6px;
 }
 
-/* SCORE NUMBERS */
+/* Score number */
 .score {
   text-align: center;
   font-size: 48px;
   font-weight: bold;
-  margin: 4px 0 8px 0;
+  margin: 8px 0;
 }
-
 </style>
 </head>
 <body>
 
 <div class="scoreboard">
 
-  <!-- Match Status -->
+  <!-- Match status -->
   <div class="match-status">Full Time</div>
 
-  <!-- Logos + Names -->
+  <!-- Teams + Logos -->
   <div class="match-header">
     <div class="team">
       <img class="team-logo"
-           src="https://1000logos.net/wp-content/uploads/2017/03/Manchester-United-Logo-2019.png"
+           src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png"
            alt="Man Utd">
       <div class="team-name">Man Utd</div>
-      <div class="scorers-list">
+      <div class="goal-scorers">
         K. Harbert 35'<br>
         P. Smith 78'
       </div>
@@ -115,16 +114,16 @@ body {
 
     <div class="team">
       <img class="team-logo"
-           src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg"
+           src="https://freepngimg.com/thumb/liverpool/7-2-liverpool-logo-png.png"
            alt="Liverpool">
       <div class="team-name">Liverpool</div>
-      <div class="scorers-list">
+      <div class="goal-scorers">
         M. Salah 50'
       </div>
     </div>
   </div>
 
-  <!-- Line with ball in middle -->
+  <!-- Line with ball -->
   <div class="center-line"></div>
 
   <!-- Score -->
