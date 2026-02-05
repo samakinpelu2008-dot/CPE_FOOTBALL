@@ -84,7 +84,7 @@ const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 
-lucide.createIcons();
+lucide.createIcons(); // render Lucide icons
 
 // Listen for chat messages
 db.collection('chat').orderBy('timestamp')
@@ -124,6 +124,8 @@ sendBtn.addEventListener('click', ()=>{
   });
   chatInput.value='';
 });
+
+// Enter key sends message
 chatInput.addEventListener('keypress', e=>{
   if(e.key==='Enter') sendBtn.click();
 });
