@@ -22,7 +22,7 @@ body {
   padding: 20px;
 }
 
-/* Match status (Live / FT / HT) */
+/* Match status */
 .match-status {
   text-align: center;
   font-size: 14px;
@@ -30,11 +30,12 @@ body {
   margin-bottom: 12px;
 }
 
-/* Header with team logos + names */
+/* Header: logos + names + score */
 .match-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
 }
 
 /* Team block */
@@ -55,18 +56,17 @@ body {
 .team-name {
   font-weight: bold;
   font-size: 15px;
-  margin-bottom: 4px;
 }
 
-/* Goal scorers under each team */
-.goal-scorers {
-  font-size: 13px;
-  color: #555;
-  line-height: 1.3;
+/* Center score */
+.score {
+  font-size: 48px;
+  font-weight: bold;
   text-align: center;
+  flex: 0 0 80px; /* space for the score */
 }
 
-/* Center line with ball icon */
+/* Center line with ball */
 .center-line {
   position: relative;
   height: 2px;
@@ -83,12 +83,16 @@ body {
   padding: 0 6px;
 }
 
-/* Centered score */
-.score {
+/* Goal scorers under the line */
+.goal-scorers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+}
+.goal-scorers div {
+  width: 140px;
   text-align: center;
-  font-size: 48px;
-  font-weight: bold;
-  margin: 8px 0;
 }
 </style>
 </head>
@@ -99,31 +103,34 @@ body {
   <!-- Match Status -->
   <div class="match-status">Full Time</div>
 
-  <!-- Teams + Logos -->
+  <!-- Logos + Names + Score -->
   <div class="match-header">
     <div class="team">
-      <img class="team-logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd Logo">
+      <img class="team-logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd">
       <div class="team-name">Man Utd</div>
-      <div class="goal-scorers">
-        K. Harbert 35'<br>
-        P. Smith 78'
-      </div>
     </div>
 
+    <div class="score">2 : 1</div>
+
     <div class="team">
-      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
       <div class="team-name">Liverpool</div>
-      <div class="goal-scorers">
-        M. Salah 50'
-      </div>
     </div>
   </div>
 
-  <!-- Center line with ball -->
+  <!-- Line with ball -->
   <div class="center-line"></div>
 
-  <!-- Score -->
-  <div class="score">2 : 1</div>
+  <!-- Goal scorers under the line -->
+  <div class="goal-scorers">
+    <div>
+      K. Harbert 35'<br>
+      P. Smith 78'
+    </div>
+    <div>
+      M. Salah 50'
+    </div>
+  </div>
 
 </div>
 
