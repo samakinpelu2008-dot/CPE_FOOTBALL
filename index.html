@@ -3,123 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Match Score</title>
+<title>Google‑Style Match Score</title>
 <style>
+
+/* Container */
 body {
   font-family: Arial, sans-serif;
-  background: #f0f0f0;
+  background: #f5f5f5;
+  margin: 0;
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  align-items: flex-start;
+  padding-top: 50px;
 }
+
+/* Card */
 .scoreboard {
   background: #fff;
-  width: 550px;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 520px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 15px 20px;
 }
+
+/* Header with match info */
 .match-header {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 130px;
-}
-.team-logo {
-  width: 60px;
-  height: 60px;
   margin-bottom: 5px;
 }
-.team-name {
-  font-weight: bold;
-  font-size: 16px;
+
+/* Team blocks */
+.team {
+  text-align: center;
+  width: 140px;
 }
+
+.team-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.team-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+/* Score line */
+.score-line {
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+/* Match status text */
+.match-status {
+  font-size: 14px;
+  color: #777;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* Goal scorers row */
 .goal-scorers {
-  font-size: 12px;
+  font-size: 13px;
   color: #555;
   text-align: center;
+  padding: 8px 0;
+  border-top: 1px solid #e0e0e0;
 }
-.line-container {
-  position: relative;
-  width: 100%;
-  margin: 15px 0;
-}
-.line-container::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #ccc;
-  transform: translateY(-50%);
-}
-.ball-icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 20px;
-  background: white;
-  padding: 0 5px;
-}
-.score {
-  font-size: 48px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.match-stage {
-  font-size: 14px;
-  color: gray;
-  margin-bottom: 10px;
-}
-.like-btn {
-  margin-top: 10px;
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-.like-btn span {
-  margin-left: 5px;
-  font-weight: bold;
+
+/* Small separator */
+.goal-scorers span {
+  display: inline-block;
+  margin: 0 12px;
 }
 </style>
 </head>
 <body>
 
 <div class="scoreboard">
+
+  <!-- Match Status -->
+  <div class="match-status">Full Time</div>
+
+  <!-- Teams + Score -->
   <div class="match-header">
     <div class="team">
-      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest_2023.svg" alt="ManU Logo">
-      <div class="team-name">ManU</div>
-      <div class="goal-scorers">K. Harbert 35', P. Smith 78'</div>
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest_2023.svg" alt="Man Utd">
+      <div class="team-name">Man Utd</div>
     </div>
+
+    <div class="score-line">2 : 1</div>
+
     <div class="team">
-      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
+      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
       <div class="team-name">Liverpool</div>
-      <div class="goal-scorers">M. Salah 50'</div>
     </div>
   </div>
 
-  <div class="line-container">
-    <div class="ball-icon">⚽</div>
+  <!-- Goal Scorers -->
+  <div class="goal-scorers">
+    <span>K. Harbert 35'</span>
+    <span>M. Salah 50'</span>
+    <span>P. Smith 78'</span>
   </div>
 
-  <div class="score">2 : 1</div>
-  <div class="match-stage">Full Time</div>
-  <button class="like-btn">❤️ <span>128</span></button>
 </div>
 
 </body>
