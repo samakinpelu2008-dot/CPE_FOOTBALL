@@ -43,12 +43,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 130px; /* shrink width slightly */
+  width: 100px; /* shrink width */
 }
 
 .team-logo {
-  width: 45px;  /* shrink logos */
-  height: 45px;
+  width: 40px;  /* shrink logos */
+  height: 40px;
   object-fit: contain;
   margin-bottom: 4px;
 }
@@ -56,6 +56,7 @@ body {
 .team-name {
   font-weight: bold;
   font-size: 15px;
+  text-align: center;
 }
 
 /* Center score */
@@ -63,7 +64,7 @@ body {
   font-size: 48px;
   font-weight: bold;
   text-align: center;
-  flex: 0 0 80px; /* keep score centered */
+  width: 120px; /* fixed width to perfectly center */
 }
 
 /* Center line with ball */
@@ -91,7 +92,7 @@ body {
   color: #555;
 }
 .goal-scorers div {
-  width: 130px; /* match team width */
+  width: 100px; /* match team width */
   text-align: center;
 }
 </style>
