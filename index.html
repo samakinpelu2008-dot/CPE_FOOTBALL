@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Department Live Match</title>
-<script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <style>
 body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; align-items:center; }
 .container { width:95%; max-width:600px; margin-top:20px; display:flex; flex-direction:column; gap:12px; }
@@ -28,8 +25,7 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; 
 .message.left { background:#e0e0e0; align-self:flex-start; }
 .input-container { display:flex; gap:6px; margin-top:6px; align-items:center; }
 #chatInput { flex:1; border-radius:25px; padding:10px 15px; border:1px solid #ccc; outline:none; font-size:16px; }
-#sendBtn { border:none; background:#007bff; border-radius:50%; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-#sendBtn svg { width:24px; height:24px; stroke:#fff; }
+#sendBtn { border:none; background:#007bff; border-radius:8px; padding:10px 15px; color:#fff; font-weight:bold; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -62,78 +58,79 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; 
 
   <div class="input-container">
     <input type="text" id="chatInput" placeholder="Type a message...">
-    <button id="sendBtn"><i data-lucide="send"></i></button>
+    <button id="sendBtn">SEND</button>
   </div>
 
 </div>
 
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <script>
-// Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCXEwNI2pRGt5tN_68xhTU7c5McUdz2HL8",
-  authDomain: "cpe--football.firebaseapp.com",
-  projectId: "cpe--football",
-  storageBucket: "cpe--football.firebasestorage.app",
-  messagingSenderId: "986780347918",
-  appId: "1:986780347918:web:eb427cf5dd652cdae6565f"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  // Initialize Firebase with your new config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBIUCbVIqFWIvas2DQI77TRdNEg4xvnkS8",
+    authDomain: "cpefootball-934ed.firebaseapp.com",
+    projectId: "cpefootball-934ed",
+    storageBucket: "cpefootball-934ed.firebasestorage.app",
+    messagingSenderId: "314240530293",
+    appId: "1:314240530293:web:1c89774cda136f4661c53c"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-const chatBox = document.getElementById('chatBox');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
+  const chatBox = document.getElementById('chatBox');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
 
-lucide.createIcons(); // render Lucide icons
+  // Listen for chat messages
+  db.collection('chat').orderBy('timestamp')
+    .onSnapshot(snapshot => {
+      chatBox.innerHTML = '';
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const msgEl = document.createElement('div');
+        msgEl.textContent = data.message;
+        msgEl.className = "message " + (data.sender==='me'?'right':'left');
 
-// Listen for chat messages
-db.collection('chat').orderBy('timestamp')
-  .onSnapshot(snapshot => {
-    chatBox.innerHTML = '';
-    snapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      const msgEl = document.createElement('div');
-      msgEl.textContent = data.message;
-      msgEl.className = "message " + (data.sender==='me'?'right':'left');
+        // Long press delete
+        let pressTimer;
+        msgEl.addEventListener('mousedown', ()=>{
+          pressTimer = setTimeout(()=>{
+            if(confirm("Delete this message?")) {
+              db.collection('chat').doc(docSnap.id).delete();
+            }
+          }, 800);
+        });
+        msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
+        msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
 
-      // Long press delete
-      let pressTimer;
-      msgEl.addEventListener('mousedown', ()=>{
-        pressTimer = setTimeout(()=>{
-          if(confirm("Delete this message?")) {
-            db.collection('chat').doc(docSnap.id).delete();
-          }
-        }, 800);
+        chatBox.appendChild(msgEl);
+        chatBox.scrollTop = chatBox.scrollHeight;
       });
-      msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
-      msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
-
-      chatBox.appendChild(msgEl);
-      chatBox.scrollTop = chatBox.scrollHeight;
     });
+
+  // Send message
+  sendBtn.addEventListener('click', ()=>{
+    const msg = chatInput.value.trim();
+    if(!msg) return;
+    db.collection('chat').add({
+      message: msg,
+      timestamp: Date.now(),
+      sender: 'me'
+    });
+    chatInput.value='';
   });
 
-// Send message
-sendBtn.addEventListener('click', ()=>{
-  const msg = chatInput.value.trim();
-  if(!msg) return;
-  db.collection('chat').add({
-    message: msg,
-    timestamp: Date.now(),
-    sender: 'me'
+  // Enter key sends message
+  chatInput.addEventListener('keypress', e=>{
+    if(e.key==='Enter') sendBtn.click();
   });
-  chatInput.value='';
-});
 
-// Enter key sends message
-chatInput.addEventListener('keypress', e=>{
-  if(e.key==='Enter') sendBtn.click();
-});
-
-// Full match details
-document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
-  alert("Full match timeline and events would appear here.");
-});
+  // Full match details
+  document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
+    alert("Full match timeline and events would appear here.");
+  });
 </script>
 
 </body>
