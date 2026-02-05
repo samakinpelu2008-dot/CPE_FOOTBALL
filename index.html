@@ -13,11 +13,11 @@ body {
   margin-top: 50px;
 }
 .scoreboard {
-  background: white;
-  width: 500px;
+  background: #fff;
+  width: 520px;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,18 +32,29 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 120px;
 }
 .team img {
   width: 60px;
   height: 60px;
   margin-bottom: 5px;
 }
+.team-name {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.goal-scorers {
+  font-size: 12px;
+  color: #555;
+  text-align: center;
+}
 .score {
   font-size: 48px;
   font-weight: bold;
 }
 .match-stage {
-  margin-top: 10px;
+  margin-top: 12px;
   color: gray;
   font-size: 14px;
 }
@@ -68,12 +79,14 @@ body {
   <div class="match-info">
     <div class="team">
       <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Manchester_United_FC_crest.svg" alt="ManU Logo">
-      <div>ManU</div>
+      <div class="team-name">ManU</div>
+      <div class="goal-scorers">K. Harbert 35', P. Smith 78'</div>
     </div>
     <div class="score">2 : 1</div>
     <div class="team">
       <img src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
-      <div>Liverpool</div>
+      <div class="team-name">Liverpool</div>
+      <div class="goal-scorers">M. Salah 50'</div>
     </div>
   </div>
   <div class="match-stage">Full Time</div>
