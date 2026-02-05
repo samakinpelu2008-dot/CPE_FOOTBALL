@@ -22,7 +22,6 @@ body {
   padding: 20px;
   margin-top: 20px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  position: relative;
 }
 .match-status { text-align: center; font-size: 14px; color: #007bff; margin-bottom: 12px; font-weight: bold; }
 .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -62,7 +61,7 @@ body {
   margin-top: 6px;
 }
 
-.message { max-width: 70%; padding: 8px 12px; border-radius: 20px; background: #e0e0e0; position: relative; word-wrap: break-word; }
+.message { max-width: 70%; padding: 8px 12px; border-radius: 20px; background: #e0e0e0; word-wrap: break-word; }
 .message.right { background: #007bff; color: #fff; align-self: flex-end; }
 .message.left { align-self: flex-start; }
 
@@ -88,6 +87,7 @@ body {
   color:#007bff;
   display:flex;
   align-items:center;
+  font-size: 24px; /* make icon bigger and visible */
 }
 </style>
 </head>
@@ -143,7 +143,7 @@ const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 
-lucide.createIcons();
+lucide.createIcons(); // render Lucide icons
 
 const chatCol = collection(db,'chat');
 
@@ -157,7 +157,7 @@ onSnapshot(q, snapshot => {
     msgEl.textContent = data.message;
     msgEl.className = "message "+ (data.sender==='me'?'right':'left');
 
-    // Long press delete (simulate)
+    // Long press delete
     let pressTimer;
     msgEl.addEventListener('mousedown', ()=>{
       pressTimer = setTimeout(async ()=>{
@@ -181,7 +181,7 @@ sendBtn.addEventListener('click', async ()=>{
   await addDoc(chatCol,{
     message: msg,
     timestamp: Date.now(),
-    sender: 'me' // mark as yourself
+    sender: 'me'
   });
   chatInput.value='';
 });
