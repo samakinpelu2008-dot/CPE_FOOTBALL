@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google-Style Goal Splash</title>
+<title>Google-Style Hexagon Goal Splash</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -46,6 +46,7 @@ body {
   align-items: center;
   width: 90px;
   transition: transform 0.4s ease;
+  position: relative;
 }
 
 .team-logo {
@@ -123,17 +124,22 @@ body {
   100% { transform: translate(-50%, -60px) scale(1); opacity: 0; }
 }
 
-/* Blue net splash (mini) */
-.net-splash {
+/* Hexagon splash */
+.hex-splash {
   position: absolute;
+  width: 40px;
+  height: 40px;
   top: 0;
   left: 0;
-  width: 0;
-  height: 100%;
+  transform: translate(-50%, -50%) scale(0);
+  clip-path: polygon(
+    25% 0%, 75% 0%, 
+    100% 50%, 75% 100%, 
+    25% 100%, 0% 50%
+  );
   background: rgba(0,123,255,0.3);
-  border-radius: 50%;
   pointer-events: none;
-  transition: all 0.6s ease;
+  transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
 /* Responsive adjustments */
@@ -160,7 +166,7 @@ body {
 
 <div class="scoreboard" id="scoreboard">
 
-  <div class="net-splash" id="netSplash"></div>
+  <div class="hex-splash" id="hexSplash"></div>
 
   <div class="match-status" id="matchStatus">Live 35'</div>
 
@@ -196,7 +202,7 @@ const scoreEl = document.getElementById('score');
 const matchStatus = document.getElementById('matchStatus');
 const goalScorersEl = document.getElementById('goalScorers');
 const scoreboard = document.getElementById('scoreboard');
-const netSplash = document.getElementById('netSplash');
+const hexSplash = document.getElementById('hexSplash');
 const manutdTeam = document.getElementById('manutdTeam');
 
 function manUtdGoal() {
@@ -207,14 +213,19 @@ function manUtdGoal() {
   scoreEl.textContent = '2 : 0';
   scoreEl.classList.add('updated');
 
-  // Mini net splash from logo
-  netSplash.style.left = '0px';
-  netSplash.style.width = '60px';
-  netSplash.style.borderRadius = '50%';
-  netSplash.style.opacity = '1';
+  // Hexagon splash over logo
+  const rect = manutdTeam.getBoundingClientRect();
+  const boardRect = scoreboard.getBoundingClientRect();
+  const left = rect.left - boardRect.left + rect.width/2;
+  const top = rect.top - boardRect.top + rect.height/2;
+  hexSplash.style.left = left + 'px';
+  hexSplash.style.top = top + 'px';
+  hexSplash.style.transform = 'translate(-50%, -50%) scale(2)';
+  hexSplash.style.opacity = '1';
+
   setTimeout(() => {
-    netSplash.style.width = '0';
-    netSplash.style.opacity = '0';
+    hexSplash.style.transform = 'translate(-50%, -50%) scale(0)';
+    hexSplash.style.opacity = '0';
   }, 600);
 
   // +1 bubble
@@ -229,7 +240,7 @@ function manUtdGoal() {
   // Update match status
   matchStatus.textContent = 'Live 36\'';
 
-  // Remove animations after short delay
+  // Reset logo and remove bubble
   setTimeout(() => {
     scoreEl.classList.remove('updated');
     manutdTeam.style.transform = "scale(1)";
