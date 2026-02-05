@@ -10,12 +10,13 @@ body {
   background: #f5f5f5;
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  margin: 50px 0;
 }
 
 /* Scoreboard card */
 .scoreboard {
-  width: 520px;
+  width: 90%;
+  max-width: 520px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -43,28 +44,28 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100px; /* shrink width */
+  width: 90px;
 }
 
 .team-logo {
-  width: 40px;  /* shrink logos */
-  height: 40px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
   margin-bottom: 4px;
 }
 
 .team-name {
   font-weight: bold;
-  font-size: 15px;
+  font-size: 14px;
   text-align: center;
 }
 
 /* Center score */
 .score {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: bold;
   text-align: center;
-  width: 120px; /* fixed width to perfectly center */
+  width: 100px;
 }
 
 /* Center line with ball */
@@ -88,12 +89,31 @@ body {
 .goal-scorers {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 12px;
   color: #555;
 }
 .goal-scorers div {
-  width: 100px; /* match team width */
+  width: 90px;
   text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .team {
+    width: 70px;
+  }
+  .team-logo {
+    width: 30px;
+    height: 30px;
+  }
+  .score {
+    font-size: 28px;
+    width: 80px;
+  }
+  .goal-scorers div {
+    width: 70px;
+    font-size: 11px;
+  }
 }
 </style>
 </head>
