@@ -43,7 +43,7 @@ body {
   width: 90px;
   transition: transform 0.4s ease;
   position: relative;
-  cursor: pointer; /* clickable for goal */
+  cursor: pointer;
 }
 .team-logo {
   width: 35px;
@@ -62,7 +62,7 @@ body {
   font-weight: bold;
   text-align: center;
   width: 100px;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 .score.updated {
   color: #28a745;
@@ -127,10 +127,8 @@ body {
 
 <div class="scoreboard" id="scoreboard">
 
-  <!-- Hexagon for goal -->
   <svg class="hex-splash" id="hexSplash" viewBox="0 0 100 100">
-    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" 
-          fill="rgba(0,123,255,0.3)" stroke="none" />
+    <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="rgba(0,123,255,0.3)" stroke="none"/>
   </svg>
 
   <div class="match-status" id="matchStatus">Live 60'</div>
@@ -170,7 +168,7 @@ const liverpoolTeam = document.getElementById('liverpoolTeam');
 let score = { manutd: 0, liverpool: 0 };
 let currentMinute = 60;
 
-// Function to trigger goal animation
+// Function: goal animation
 function goalAnimation(teamId, scorer, minute) {
   const teamEl = document.getElementById(teamId + 'Team');
 
@@ -179,7 +177,7 @@ function goalAnimation(teamId, scorer, minute) {
   scoreEl.textContent = `${score.manutd} : ${score.liverpool}`;
   scoreEl.classList.add('updated');
 
-  // Hexagon splash over team
+  // Hexagon splash
   const rect = teamEl.getBoundingClientRect();
   const boardRect = scoreboard.getBoundingClientRect();
   const left = rect.left - boardRect.left + rect.width/2;
@@ -209,7 +207,7 @@ function goalAnimation(teamId, scorer, minute) {
   setTimeout(() => teamEl.style.transform = 'scale(1)', 800);
 }
 
-// Function to handle click on a team
+// Handle team click
 function teamClick(teamId) {
   const scorer = prompt("Enter goal scorer name:");
   if (!scorer) return;
@@ -218,10 +216,9 @@ function teamClick(teamId) {
   goalAnimation(teamId, scorer, minute);
 }
 
-// Add click listeners
+// Click listeners
 manutdTeam.addEventListener('click', () => teamClick('manutd'));
 liverpoolTeam.addEventListener('click', () => teamClick('liverpool'));
-
 </script>
 
 </body>
