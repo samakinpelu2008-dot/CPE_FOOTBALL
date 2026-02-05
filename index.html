@@ -3,27 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lucide Send Button Test</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.css">
+<title>Send Button Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
 <style>
-body { font-family: Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#f5f5f5; }
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f5f5f5;
+}
 .input-container {
   display: flex;
-  gap: 6px;
   align-items: center;
+  gap: 8px;
 }
 #chatInput {
-  padding: 10px 15px;
+  padding: 12px 15px;
   border-radius: 25px;
   border: 1px solid #ccc;
   width: 250px;
+  font-size: 16px;
 }
 #sendBtn {
-  border:none;
-  background:none;
-  cursor:pointer;
-  color:#007bff;
-  font-size: 32px; /* big enough to see */
+  background: #007bff;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#sendBtn svg {
+  width: 24px;
+  height: 24px;
+  stroke: #fff;
 }
 </style>
 </head>
@@ -34,14 +50,12 @@ body { font-family: Arial; display:flex; justify-content:center; align-items:cen
   <button id="sendBtn"><i data-lucide="send"></i></button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/lucide/dist/lucide.min.js"></script>
 <script>
-lucide.createIcons(); // THIS MAKES THE ICON VISIBLE
+lucide.createIcons(); // THIS MAKES THE ICON SHOW
 
-// Just for demo: click sends alert
-document.getElementById('sendBtn').addEventListener('click', ()=>{
-  const val = document.getElementById('chatInput').value;
-  alert("You clicked send! Message: " + val);
+document.getElementById('sendBtn').addEventListener('click', () => {
+  const msg = document.getElementById('chatInput').value;
+  if(msg) alert("Message sent: " + msg);
 });
 </script>
 
