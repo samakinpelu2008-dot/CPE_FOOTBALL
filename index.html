@@ -1,48 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PROF SAM ONLINE CLASS TEST</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Department Football Live Match</title>
+<style>
+  body {font-family: Arial, sans-serif; margin:0; background:#121212; color:white;}
+  .scoreboard {background:#1e90ff; padding:15px; display:flex; justify-content:space-between; align-items:center;}
+  .team {text-align:center;}
+  .score {font-size:2rem;}
+  #timer {font-weight:bold;}
+  .chat-container {display:flex; flex-direction:column; height:calc(100vh - 120px); padding:10px; overflow:hidden;}
+  .messages {flex:1; overflow-y:auto; margin-bottom:10px; border:1px solid #333; padding:10px; border-radius:8px;}
+  .message {margin-bottom:8px;}
+  .message.admin {text-align:right; color:#ffd700;}
+  .chat-input {display:flex;}
+  .chat-input input {flex:1; padding:10px; border-radius:8px 0 0 8px; border:none; outline:none;}
+  .chat-input button {padding:10px; border:none; background:#1e90ff; color:white; border-radius:0 8px 8px 0; cursor:pointer;}
+</style>
 </head>
 <body>
-  <div id="app">
-    <!-- Start Screen -->
-    <div id="start-screen" class="card">
-      <h1>PROF SAM ONLINE CLASS TEST</h1>
-      <p class="subtitle">PROF SAM WANTS THE BEST, SO DO YOUR BEST</p>
-      <p>You have <strong>20 minutes</strong> to complete 50 questions.<br>
-      Leaving this page twice will submit automatically.</p>
-      <input type="text" id="examCode" placeholder="Enter Exam Code" />
-      <button id="startBtn">Start Test</button>
-    </div>
 
-    <!-- Quiz Screen -->
-    <div id="quiz-screen" class="hidden">
-      <div class="top-bar">
-        <span id="timer">20:00</span>
-        <span id="questionCount"></span>
-      </div>
-      <div id="question-container" class="fade"></div>
-      <div class="buttons">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-        <button id="submitBtn" class="hidden">Submit</button>
-      </div>
-    </div>
-
-    <!-- Result Screen -->
-    <div id="result-screen" class="hidden card">
-      <h2>Test Completed ✅</h2>
-      <p id="result-message"></p>
-      <p id="exam-code-display"></p>
-      <p id="score-display"></p>
-      <p id="rating-display"></p>
-      <p class="note">Take a screenshot of this page as proof.</p>
-    </div>
+<!-- Scoreboard -->
+<div class="scoreboard">
+  <div class="team">
+    <div id="homeTeamName">Dept A</div>
+    <div class="score" id="homeScore">0</div>
   </div>
-  <script src="script.js"></script>
+  <div id="timer">00:00 | Injury: 0s</div>
+  <div class="team">
+    <div id="awayTeamName">Dept B</div>
+    <div class="score" id="awayScore">0</div>
+  </div>
+</div>
+
+<!-- Chat Section -->
+<div class="chat-container">
+  <div class="messages" id="messages"></div>
+  <div class="chat-input">
+    <input type="text" id="chatMessage" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script type="module">
+  import { db, ref, onValue, push, set } from './firebase.js';
+
+  const matchId = "match1";
+
+  // Score & Timer References
+  const homeScoreRef = ref(db, `matches/${matchId}/score/home`);
+  const awayScoreRef = ref(db, `matches/${matchId}/score/away`);
+  const timerRef = ref(db, `matches/${matchId}/timer`);
+  const injuryRef = ref(db, `matches/${matchId}/injuryTime`);
+  const messagesRef = ref(db, `matches/${matchId}/messages`);
+
+  // Display Score
+  onValue(homeScoreRef, snap => document.getElementById('homeScore').innerText = snap.val());
+  onValue(awayScoreRef, snap => document.getElementById('awayScore').innerText = snap.val());
+
+  // Display Timer
+  onValue(ref(db, `matches/${matchId}`), snap => {
+    const data = snap.val();
+    const minutes = String(Math.floor(data.timer/60)).padStart(2,'0');
+    const seconds = String(data.timer%60).padStart(2,'0');
+    document.getElementById('timer').innerText = `${minutes}:${seconds} | Injury: ${data.injuryTime}s`;
+  });
+
+  // Chat Functionality
+  onValue(messagesRef, snap => {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = '';
+    snap.forEach(child => {
+      const msg = child.val();
+      const div = document.createElement('div');
+      div.className = `message ${msg.admin ? 'admin' : ''}`;
+      div.innerText = msg.user + ': ' + msg.text;
+      messagesDiv.appendChild(div);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  });
+
+  function sendMessage(){
+    const input = document.getElementById('chatMessage');
+    const text = input.value.trim();
+    if(!text) return;
+    push(messagesRef, { user: "User1", text: text, admin: false });
+    input.value = '';
+  }
+
+  // Admin Controls Example
+  // You can later check admin auth before allowing these
+  function addGoal(team){
+    if(team === 'home'){
+      onValue(homeScoreRef, snap => set(homeScoreRef, snap.val() + 1), {once:true});
+    } else {
+      onValue(awayScoreRef, snap => set(awayScoreRef, snap.val() + 1), {once:true});
+    }
+  }
+
+  // Timer Example for Admin
+  let timerInterval;
+  function startTimer(halfTimeMinutes){
+    onValue(ref(db, `matches/${matchId}`), snap=>{
+      let match = snap.val();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(()=>{
+        let timer = match.timer + 1;
+        let halfSeconds = halfTimeMinutes * 60;
+        if(timer > halfSeconds){
+          let injuryTime = match.injuryTime + 1;
+          set(injuryRef, injuryTime);
+        } else {
+          set(timerRef, timer);
+        }
+      }, 1000);
+    }, {once:true});
+  }
+
+</script>
 </body>
 </html>
