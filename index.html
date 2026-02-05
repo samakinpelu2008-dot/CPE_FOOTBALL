@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google-Style Live Goal Demo</title>
+<title>Google-Style Live Goal Animation</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -21,6 +21,7 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 20px;
   position: relative;
+  overflow: hidden;
 }
 
 .match-status {
@@ -36,6 +37,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  position: relative;
 }
 
 .team {
@@ -43,6 +45,7 @@ body {
   flex-direction: column;
   align-items: center;
   width: 90px;
+  transition: transform 0.4s ease;
 }
 
 .team-logo {
@@ -50,6 +53,7 @@ body {
   height: 35px;
   object-fit: contain;
   margin-bottom: 4px;
+  transition: transform 0.4s ease;
 }
 
 .team-name {
@@ -105,7 +109,7 @@ body {
   position: absolute;
   font-weight: bold;
   color: #28a745;
-  top: 40px; /* start above the score */
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   opacity: 1;
@@ -117,6 +121,19 @@ body {
   0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
   50% { transform: translate(-50%, -30px) scale(1.3); opacity: 1; }
   100% { transform: translate(-50%, -60px) scale(1); opacity: 0; }
+}
+
+/* Net animation */
+.net {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: rgba(0,123,255,0.2);
+  z-index: 1;
+  pointer-events: none;
+  transition: width 0.6s ease;
 }
 
 /* Responsive adjustments */
@@ -141,12 +158,14 @@ body {
 </head>
 <body>
 
-<div class="scoreboard">
+<div class="scoreboard" id="scoreboard">
+
+  <div class="net" id="net"></div>
 
   <div class="match-status" id="matchStatus">Live 35'</div>
 
   <div class="match-header">
-    <div class="team">
+    <div class="team" id="manutdTeam">
       <img class="team-logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd">
       <div class="team-name">Man Utd</div>
     </div>
@@ -177,19 +196,29 @@ body {
 const scoreEl = document.getElementById('score');
 const matchStatus = document.getElementById('matchStatus');
 const goalScorersEl = document.getElementById('goalScorers');
-const scoreboard = document.querySelector('.scoreboard');
+const scoreboard = document.getElementById('scoreboard');
+const net = document.getElementById('net');
+const manutdTeam = document.getElementById('manutdTeam');
 
-// Function to animate goal
+// Goal animation function
 function manUtdGoal() {
-  // Add +1 bubble
+  // Expand logo
+  manutdTeam.style.transform = "scale(1.3)";
+
+  // Animate score
+  scoreEl.textContent = '2 : 0';
+  scoreEl.classList.add('updated');
+
+  // Net animation from left to center
+  net.style.left = '0';
+  net.style.width = '50%';
+  setTimeout(() => { net.style.width = '0'; }, 600);
+
+  // +1 bubble
   const plus1 = document.createElement('div');
   plus1.className = 'plus1';
   plus1.textContent = '+1';
   scoreboard.appendChild(plus1);
-
-  // Animate score update
-  scoreEl.textContent = '2 : 0';
-  scoreEl.classList.add('updated');
 
   // Add goal scorer
   goalScorersEl.children[0].innerHTML += "<br>P. Smith 36'";
@@ -197,15 +226,12 @@ function manUtdGoal() {
   // Update match status
   matchStatus.textContent = 'Live 36\'';
 
-  // Remove glow after animation
+  // Remove animations after short delay
   setTimeout(() => {
     scoreEl.classList.remove('updated');
-  }, 1200);
-
-  // Remove +1 bubble after animation
-  setTimeout(() => {
+    manutdTeam.style.transform = "scale(1)";
     plus1.remove();
-  }, 1000);
+  }, 1200);
 }
 
 // Simulate goal after 2 seconds
