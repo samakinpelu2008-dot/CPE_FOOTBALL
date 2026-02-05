@@ -3,190 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CPE Football Live Score</title>
+<title>Live Match Score</title>
 <style>
-body { font-family: Arial; margin:0; text-align:center; overflow:hidden; }
-.scoreboard { background:#f5f5f5; padding:20px; font-size:24px; display:flex; justify-content:space-between; align-items:center; }
-.chat { width:80%; height:200px; margin:20px auto; border:1px solid #ccc; overflow-y:auto; padding:10px; }
-.message { display:flex; justify-content:space-between; margin:5px 0; }
-button { padding:5px 10px; margin-left:5px; cursor:pointer; }
-.details-btn, .admin-btn { padding:10px 20px; margin:10px; }
-.timeline-popup { position:fixed; top:20%; left:20%; width:60%; background:white; border:2px solid black; padding:20px; z-index:10; max-height:400px; overflow-y:auto; display:none; }
-.admin-panel { position:fixed; top:0; right:0; width:300px; height:100%; background:#ddd; padding:10px; overflow-y:auto; display:none; }
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+.scoreboard {
+  background: white;
+  width: 500px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.match-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.team img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 5px;
+}
+.score {
+  font-size: 48px;
+  font-weight: bold;
+}
+.match-stage {
+  margin-top: 10px;
+  color: gray;
+  font-size: 14px;
+}
+.like-btn {
+  margin-top: 15px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.like-btn span {
+  margin-left: 5px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
 
 <div class="scoreboard">
-  <span id="teamA">Team A</span> <span id="scoreA">0</span> - <span id="scoreB">0</span> <span id="teamB">Team B</span>
-  <button id="likeGame">❤️ <span id="gameLikes">0</span></button>
+  <div class="match-info">
+    <div class="team">
+      <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Manchester_United_FC_crest.svg" alt="ManU Logo">
+      <div>ManU</div>
+    </div>
+    <div class="score">2 : 1</div>
+    <div class="team">
+      <img src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool Logo">
+      <div>Liverpool</div>
+    </div>
+  </div>
+  <div class="match-stage">Full Time</div>
+  <button class="like-btn">❤️ <span>128</span></button>
 </div>
 
-<div class="chat" id="chat"></div>
-<input type="text" id="chatInput" placeholder="Type message...">
-<button onclick="sendMessage()">Send</button>
-
-<button class="details-btn" onclick="toggleDetails()">FULL DETAILS</button>
-<div class="timeline-popup" id="timelinePopup">
-  <button onclick="toggleDetails()">Close</button>
-  <ul id="timelineList"></ul>
-</div>
-
-<button class="admin-btn" onclick="adminLogin()">Admin</button>
-<div class="admin-panel" id="adminPanel">
-  <h2>Admin Panel</h2>
-  <h3>Team Settings</h3>
-  <input placeholder="Team A Name" id="teamAInput"><br>
-  <input placeholder="Team B Name" id="teamBInput"><br>
-  <button onclick="updateTeams()">Update Teams</button>
-
-  <h3>Timeline Event</h3>
-  <input placeholder="Player Name" id="playerInput"><br>
-  <select id="eventType">
-    <option value="goal">Goal</option>
-    <option value="yellow">Yellow Card</option>
-    <option value="red">Red Card</option>
-  </select><br>
-  <button onclick="addEvent()">Add Event</button>
-
-  <button style="background:red; color:white;" onclick="resetAll()">RESET ALL</button>
-</div>
-
-<!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-
-// Your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCXEwNI2pRGt5tN_68xhTU7c5McUdz2HL8",
-  authDomain: "cpe--football.firebaseapp.com",
-  projectId: "cpe--football",
-  storageBucket: "cpe--football.firebasestorage.app",
-  messagingSenderId: "986780347918",
-  appId: "1:986780347918:web:eb427cf5dd652cdae6565f"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ----- Realtime Data -----
-const matchRef = ref(db, 'match');
-const chatRef = ref(db, 'chat');
-const timelineRef = ref(db, 'timeline');
-
-// Listen to match
-onValue(matchRef, snapshot => {
-  if(snapshot.exists()){
-    const data = snapshot.val();
-    document.getElementById("teamA").innerText = data.teamA || "Team A";
-    document.getElementById("teamB").innerText = data.teamB || "Team B";
-    document.getElementById("scoreA").innerText = data.scoreA || 0;
-    document.getElementById("scoreB").innerText = data.scoreB || 0;
-    document.getElementById("gameLikes").innerText = data.likes || 0;
-  }
-});
-
-// Listen to chat
-onValue(chatRef, snapshot => {
-  const chatDiv = document.getElementById("chat");
-  chatDiv.innerHTML = "";
-  if(snapshot.exists()){
-    const data = snapshot.val();
-    Object.keys(data).forEach(key => {
-      const msg = data[key];
-      const div = document.createElement("div");
-      div.className="message";
-      div.innerHTML=`<span>${msg.text}</span> <span>
-        <button onclick="likeMessage('${key}', ${msg.likes})">❤️ ${msg.likes}</button>
-        <button onclick="deleteMessage('${key}')">🗑️</button>
-      </span>`;
-      chatDiv.appendChild(div);
-    });
-  }
-});
-
-// Listen to timeline
-onValue(timelineRef, snapshot => {
-  renderTimeline(snapshot.val());
-});
-
-function sendMessage(){
-  const input = document.getElementById("chatInput");
-  if(!input.value) return;
-  push(chatRef, { text: input.value, likes: 0 });
-  input.value="";
-}
-
-window.likeMessage = (id, likes) => update(ref(db,'chat/'+id), { likes: likes+1 });
-window.deleteMessage = (id) => { if(confirm("Delete?")) remove(ref(db,'chat/'+id)); }
-
-document.getElementById("likeGame").onclick = async () => {
-  const snap = await get(matchRef);
-  const data = snap.val() || { likes:0, scoreA:0, scoreB:0, teamA:"Team A", teamB:"Team B" };
-  update(matchRef, { ...data, likes: (data.likes||0)+1 });
-}
-
-function toggleDetails(){ 
-  const popup = document.getElementById("timelinePopup");
-  popup.style.display = popup.style.display==="none"?"block":"none"; 
-}
-
-function renderTimeline(data){
-  const list = document.getElementById("timelineList");
-  list.innerHTML="";
-  if(!data) return;
-  Object.values(data).forEach(ev=>{
-    let icon="";
-    if(ev.type==="goal") icon="⚽";
-    if(ev.type==="yellow") icon="🟨";
-    if(ev.type==="red") icon="🟥";
-    const li = document.createElement("li");
-    li.innerText=`${icon} ${ev.player} ${ev.time}'`;
-    list.appendChild(li);
-  });
-}
-
-// Admin
-function adminLogin(){
-  const pwd = prompt("Enter Admin Password");
-  if(pwd==="CPE2026") document.getElementById("adminPanel").style.display="block";
-  else alert("Wrong Password");
-}
-
-function updateTeams(){
-  const a = document.getElementById("teamAInput").value;
-  const b = document.getElementById("teamBInput").value;
-  get(matchRef).then(snap=>{
-    const data = snap.val()||{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"};
-    set(matchRef,{...data, teamA:a||data.teamA, teamB:b||data.teamB});
-  });
-}
-
-function addEvent(){
-  const player = document.getElementById("playerInput").value;
-  const type = document.getElementById("eventType").value;
-  if(!player) return;
-  const time = new Date().getMinutes();
-  const newRef = push(timelineRef);
-  set(newRef,{player,type,time});
-  if(type==="goal"){
-    get(matchRef).then(snap=>{
-      const data = snap.val()||{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"};
-      if(player.toLowerCase().includes(data.teamA.toLowerCase())) data.scoreA++;
-      else data.scoreB++;
-      set(matchRef,data);
-    });
-  }
-  document.getElementById("playerInput").value="";
-}
-
-function resetAll(){
-  if(confirm("Reset everything?")){
-    set(matchRef,{scoreA:0,scoreB:0,likes:0,teamA:"Team A",teamB:"Team B"});
-    remove(chatRef); remove(timelineRef);
-  }
-}
-</script>
 </body>
 </html>
