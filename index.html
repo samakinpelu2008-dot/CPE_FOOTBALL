@@ -8,24 +8,25 @@
 <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
 <style>
-body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:column; align-items:center; margin:0; padding:0; }
-.scoreboard { width:90%; max-width:520px; background:#fff; border-radius:10px; padding:20px; margin-top:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-.match-status { text-align:center; font-size:14px; color:#007bff; margin-bottom:12px; font-weight:bold;}
-.match-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; align-items:center; }
+.container { width:95%; max-width:600px; margin-top:20px; display:flex; flex-direction:column; gap:12px; }
+.scoreboard { background:#fff; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.match-status { text-align:center; font-size:14px; color:#007bff; font-weight:bold; margin-bottom:10px; }
+.match-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .team { display:flex; flex-direction:column; align-items:center; width:90px; cursor:pointer; }
-.team-logo { width:35px; height:35px; object-fit:contain; margin-bottom:4px; }
+.team-logo { width:40px; height:40px; object-fit:contain; border-radius:50%; margin-bottom:4px; transition: transform 0.3s; }
 .team-name { font-weight:bold; font-size:14px; text-align:center; }
 .score { font-size:36px; font-weight:bold; text-align:center; width:100px; }
-.center-line { position:relative; height:2px; background:#e0e0e0; margin:15px 0; }
+.center-line { position:relative; height:2px; background:#e0e0e0; margin:12px 0; }
 .center-line::before { content:"⚽"; position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#fff; padding:0 6px;}
-.goal-scorers { display:flex; justify-content:space-between; font-size:12px; color:#555; margin-bottom:12px;}
+.goal-scorers { display:flex; justify-content:space-between; font-size:12px; color:#555; margin-bottom:5px;}
 .goal-scorers div { width:90px; text-align:center; }
-#fullDetailsBtn { width:90%; max-width:520px; margin-top:10px; padding:8px; border-radius:8px; border:none; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; }
-.chat-container { width:90%; max-width:520px; height:300px; background:#fff; border-radius:10px; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-top:6px; }
-.message { max-width:70%; padding:8px 12px; border-radius:20px; background:#e0e0e0; word-wrap:break-word; }
+#fullDetailsBtn { padding:8px; border:none; border-radius:8px; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; width:100%; }
+.chat-container { background:#fff; border-radius:12px; height:300px; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.message { max-width:70%; padding:8px 12px; border-radius:20px; word-wrap:break-word; }
 .message.right { background:#007bff; color:#fff; align-self:flex-end; }
-.message.left { align-self:flex-start; }
-.input-container { width:90%; max-width:520px; display:flex; margin-top:6px; margin-bottom:20px; align-items:center; gap:6px; }
+.message.left { background:#e0e0e0; align-self:flex-start; }
+.input-container { display:flex; gap:6px; margin-top:6px; align-items:center; }
 #chatInput { flex:1; border-radius:25px; padding:10px 15px; border:1px solid #ccc; outline:none; font-size:16px; }
 #sendBtn { border:none; background:#007bff; border-radius:50%; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 #sendBtn svg { width:24px; height:24px; stroke:#fff; }
@@ -33,33 +34,37 @@ body { font-family: Arial; background:#f5f5f5; display:flex; flex-direction:colu
 </head>
 <body>
 
-<div class="scoreboard">
-  <div class="match-status">Live 60'</div>
-  <div class="match-header">
-    <div class="team">
-      <img class="team-logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd">
-      <div class="team-name">Man Utd</div>
+<div class="container">
+
+  <div class="scoreboard">
+    <div class="match-status" id="matchStatus">Live 60'</div>
+    <div class="match-header">
+      <div class="team">
+        <img class="team-logo" id="team1Logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd">
+        <div class="team-name" id="team1Name">Man Utd</div>
+      </div>
+      <div class="score" id="scoreBoard">2 : 1</div>
+      <div class="team">
+        <img class="team-logo" id="team2Logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
+        <div class="team-name" id="team2Name">Liverpool</div>
+      </div>
     </div>
-    <div class="score">2 : 1</div>
-    <div class="team">
-      <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
-      <div class="team-name">Liverpool</div>
+    <div class="center-line"></div>
+    <div class="goal-scorers">
+      <div id="team1Scorers">K.Harbert 36'</div>
+      <div id="team2Scorers">S.Mane 65'</div>
     </div>
   </div>
-  <div class="center-line"></div>
-  <div class="goal-scorers">
-    <div>K.Harbert 36'</div>
-    <div>S.Mane 65'</div>
+
+  <button id="fullDetailsBtn">FULL MATCH DETAILS</button>
+
+  <div class="chat-container" id="chatBox"></div>
+
+  <div class="input-container">
+    <input type="text" id="chatInput" placeholder="Type a message...">
+    <button id="sendBtn"><i data-lucide="send"></i></button>
   </div>
-</div>
 
-<button id="fullDetailsBtn">FULL MATCH DETAILS</button>
-
-<div class="chat-container" id="chatBox"></div>
-
-<div class="input-container">
-  <input type="text" id="chatInput" placeholder="Type a message...">
-  <button id="sendBtn"><i data-lucide="send"></i></button>
 </div>
 
 <script>
@@ -79,9 +84,9 @@ const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 
-lucide.createIcons(); // render icons
+lucide.createIcons();
 
-// Listen for chat messages in real time
+// Listen for chat messages
 db.collection('chat').orderBy('timestamp')
   .onSnapshot(snapshot => {
     chatBox.innerHTML = '';
@@ -119,8 +124,6 @@ sendBtn.addEventListener('click', ()=>{
   });
   chatInput.value='';
 });
-
-// Send with Enter key
 chatInput.addEventListener('keypress', e=>{
   if(e.key==='Enter') sendBtn.click();
 });
