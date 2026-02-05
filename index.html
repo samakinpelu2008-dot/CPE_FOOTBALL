@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google-Style Live Goal Animation</title>
+<title>Google-Style Goal Splash</title>
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -123,17 +123,17 @@ body {
   100% { transform: translate(-50%, -60px) scale(1); opacity: 0; }
 }
 
-/* Net animation */
-.net {
+/* Blue net splash (mini) */
+.net-splash {
   position: absolute;
   top: 0;
   left: 0;
   width: 0;
   height: 100%;
-  background: rgba(0,123,255,0.2);
-  z-index: 1;
+  background: rgba(0,123,255,0.3);
+  border-radius: 50%;
   pointer-events: none;
-  transition: width 0.6s ease;
+  transition: all 0.6s ease;
 }
 
 /* Responsive adjustments */
@@ -160,7 +160,7 @@ body {
 
 <div class="scoreboard" id="scoreboard">
 
-  <div class="net" id="net"></div>
+  <div class="net-splash" id="netSplash"></div>
 
   <div class="match-status" id="matchStatus">Live 35'</div>
 
@@ -192,15 +192,13 @@ body {
 </div>
 
 <script>
-// Elements
 const scoreEl = document.getElementById('score');
 const matchStatus = document.getElementById('matchStatus');
 const goalScorersEl = document.getElementById('goalScorers');
 const scoreboard = document.getElementById('scoreboard');
-const net = document.getElementById('net');
+const netSplash = document.getElementById('netSplash');
 const manutdTeam = document.getElementById('manutdTeam');
 
-// Goal animation function
 function manUtdGoal() {
   // Expand logo
   manutdTeam.style.transform = "scale(1.3)";
@@ -209,10 +207,15 @@ function manUtdGoal() {
   scoreEl.textContent = '2 : 0';
   scoreEl.classList.add('updated');
 
-  // Net animation from left to center
-  net.style.left = '0';
-  net.style.width = '50%';
-  setTimeout(() => { net.style.width = '0'; }, 600);
+  // Mini net splash from logo
+  netSplash.style.left = '0px';
+  netSplash.style.width = '60px';
+  netSplash.style.borderRadius = '50%';
+  netSplash.style.opacity = '1';
+  setTimeout(() => {
+    netSplash.style.width = '0';
+    netSplash.style.opacity = '0';
+  }, 600);
 
   // +1 bubble
   const plus1 = document.createElement('div');
