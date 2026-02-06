@@ -5,45 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Match & Chat</title>
 <style>
-body { margin:0; padding:0; font-family: Arial, sans-serif; background: #e6f0ff; display:flex; flex-direction:column; align-items:center; }
-.container { width:95%; max-width:650px; margin-top:20px; display:flex; flex-direction:column; gap:15px; }
-
-/* Scoreboard */
+body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; align-items:center; }
+.container { width:95%; max-width:600px; margin-top:20px; display:flex; flex-direction:column; gap:12px; }
 .scoreboard { background:#fff; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
 .match-status { text-align:center; font-size:14px; color:#007bff; font-weight:bold; margin-bottom:10px; }
 .match-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .team { display:flex; flex-direction:column; align-items:center; width:90px; cursor:pointer; }
-.team-logo { width:50px; height:50px; object-fit:contain; border-radius:50%; margin-bottom:4px; transition: transform 0.3s; }
+.team-logo { width:40px; height:40px; object-fit:contain; border-radius:50%; margin-bottom:4px; transition: transform 0.3s; }
 .team-name { font-weight:bold; font-size:14px; text-align:center; }
 .score { font-size:36px; font-weight:bold; text-align:center; width:100px; }
 .center-line { position:relative; height:2px; background:#e0e0e0; margin:12px 0; }
 .center-line::before { content:"⚽"; position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#fff; padding:0 6px;}
 .goal-scorers { display:flex; justify-content:space-between; font-size:12px; color:#555; margin-bottom:5px;}
-.goal-scorers div { width:120px; text-align:center; }
+.goal-scorers div { width:90px; text-align:center; }
+#fullDetailsBtn { padding:8px; border:none; border-radius:8px; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; width:100%; }
 
-/* Goal / Card Effects */
-.effect { position:absolute; font-weight:bold; border-radius:50%; width:40px; height:40px; display:flex; justify-content:center; align-items:center; color:#fff; animation: pop 0.7s forwards; }
-.effect.goal { background: #007bff; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
-.effect.red { background: red; border-radius:5px; }
-.effect.yellow { background: yellow; color:#000; border-radius:5px; }
-@keyframes pop { 0% {transform: scale(0);} 50% {transform: scale(1.3);} 100% {transform: scale(1);} }
-
-/* Chat */
-.chat-container { background:#fff; border-radius:12px; height:300px; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; position:relative; }
-.message { max-width:70%; padding:8px 12px; border-radius:20px; word-wrap:break-word; position:relative; }
+.chat-container { background:#fff; border-radius:12px; height:300px; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.message { max-width:70%; padding:8px 12px; border-radius:20px; word-wrap:break-word; }
 .message.right { background:#007bff; color:#fff; align-self:flex-end; }
 .message.left { background:#e0e0e0; align-self:flex-start; }
-.delete-btn { position:absolute; top:-5px; right:-5px; font-size:10px; background:#ff4d4d; color:#fff; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; display:none; }
-.message.right:hover .delete-btn, .message.left:hover .delete-btn { display:block; }
 
-/* Input */
 .input-container { display:flex; gap:6px; margin-top:6px; align-items:center; }
 #chatInput { flex:1; border-radius:25px; padding:10px 15px; border:1px solid #ccc; outline:none; font-size:16px; }
 #sendBtn { border:none; background:#007bff; border-radius:8px; padding:10px 15px; color:#fff; font-weight:bold; cursor:pointer; }
-
-/* Admin Panel */
-#adminPanel { display:none; flex-direction:column; gap:6px; background:#f9f9f9; padding:10px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.2);}
-.admin-btn { padding:6px; border-radius:6px; border:none; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -51,207 +35,99 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background: #e6f0ff;
 <div class="container">
 
   <!-- Scoreboard -->
-  <div class="scoreboard" id="scoreboardWrapper" style="position:relative;">
-    <div class="match-status" id="matchStatus">Pre-Match</div>
+  <div class="scoreboard">
+    <div class="match-status" id="matchStatus">Live 60'</div>
     <div class="match-header">
       <div class="team">
-        <div class="team-name" id="team1Name">CPE</div>
+        <img class="team-logo" id="team1Logo" src="https://pngimg.com/uploads/manchester_united/manchester_united_PNG21.png" alt="Man Utd">
+        <div class="team-name" id="team1Name">Man Utd</div>
       </div>
-      <div class="score" id="scoreBoard">0 : 0</div>
+      <div class="score" id="scoreBoard">2 : 1</div>
       <div class="team">
-        <div class="team-name" id="team2Name">BMG</div>
+        <img class="team-logo" id="team2Logo" src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" alt="Liverpool">
+        <div class="team-name" id="team2Name">Liverpool</div>
       </div>
     </div>
     <div class="center-line"></div>
     <div class="goal-scorers">
-      <div id="team1Scorers"></div>
-      <div id="team2Scorers"></div>
+      <div id="team1Scorers">K.Harbert 36'</div>
+      <div id="team2Scorers">S.Mane 65'</div>
     </div>
   </div>
 
+  <!-- Full match details -->
+  <button id="fullDetailsBtn">FULL MATCH DETAILS</button>
+
   <!-- Chat -->
   <div class="chat-container" id="chatBox"></div>
+
   <div class="input-container">
     <input type="text" id="chatInput" placeholder="Type a message...">
     <button id="sendBtn">SEND</button>
   </div>
 
-  <!-- Admin Panel -->
-  <div id="adminPanel">
-    <button class="admin-btn" onclick="setStage('Pre-Match')">Pre-Match</button>
-    <button class="admin-btn" onclick="setStage('First Half')">First Half</button>
-    <button class="admin-btn" onclick="setStage('Half Time')">Half Time</button>
-    <button class="admin-btn" onclick="setStage('Second Half')">Second Half</button>
-    <button class="admin-btn" onclick="setStage('Full Time')">Full Time</button>
-    <input type="text" id="goalPlayer" placeholder="Scorer Name">
-    <select id="goalTeam">
-      <option value="team1">CPE</option>
-      <option value="team2">BMG</option>
-    </select>
-    <button class="admin-btn" onclick="addGoal()">Add Goal</button>
-    <button class="admin-btn" onclick="addCard('yellow')">Yellow Card</button>
-    <button class="admin-btn" onclick="addCard('red')">Red Card</button>
-  </div>
-
 </div>
 
-<!-- Firebase -->
+<!-- Firebase Realtime Database -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
-  authDomain: "fresherscuplive.firebaseapp.com",
-  databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
-  projectId: "fresherscuplive",
-  storageBucket: "fresherscuplive.firebasestorage.app",
-  messagingSenderId: "502451588704",
-  appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
+    authDomain: "fresherscuplive.firebaseapp.com",
+    databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
+    projectId: "fresherscuplive",
+    storageBucket: "fresherscuplive.firebasestorage.app",
+    messagingSenderId: "502451588704",
+    appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-// Elements
-const chatBox = document.getElementById('chatBox');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
-const adminPanel = document.getElementById('adminPanel');
-const matchStatus = document.getElementById('matchStatus');
-const scoreBoard = document.getElementById('scoreBoard');
-const team1Scorers = document.getElementById('team1Scorers');
-const team2Scorers = document.getElementById('team2Scorers');
+  const chatBox = document.getElementById('chatBox');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
 
-let matchStage = "Pre-Match";
-let team1Goals = [];
-let team2Goals = [];
-let timerInterval;
-let currentMinute = 0;
-let injuryTime = 0;
-
-// Send message
-sendBtn.addEventListener('click', () => {
-  const msg = chatInput.value.trim();
-  if(!msg) return;
-
-  // Admin password detection
-  if(msg === "admin123") {
-    chatInput.value = "";
-    adminPanel.style.display = "flex";
-    return;
-  }
-
-  const newMsgRef = db.ref('chat').push();
-  newMsgRef.set({
-    message: msg,
-    sender: 'user',
-    timestamp: Date.now()
+  // Send message
+  sendBtn.addEventListener('click', () => {
+    const msg = chatInput.value.trim();
+    if(!msg) return;
+    const newMsgRef = db.ref('chat').push();
+    newMsgRef.set({
+      message: msg,
+      sender: 'me', // your own message name
+      timestamp: Date.now()
+    });
+    chatInput.value = '';
   });
-  chatInput.value = '';
-});
 
-// Enter key
-chatInput.addEventListener('keypress', e => {
-  if(e.key==='Enter') sendBtn.click();
-});
-
-// Listen for chat
-db.ref('chat').on('value', snapshot => {
-  chatBox.innerHTML = '';
-  const data = snapshot.val();
-  if(data){
-    Object.keys(data).forEach(key => {
-      const msgData = data[key];
-      const msgEl = document.createElement('div');
-      msgEl.textContent = msgData.message;
-      msgEl.className = "message left";
-      const delBtn = document.createElement('button');
-      delBtn.textContent = "x";
-      delBtn.className = "delete-btn";
-      delBtn.onclick = ()=> db.ref('chat/'+key).remove();
-      msgEl.appendChild(delBtn);
-      chatBox.appendChild(msgEl);
-    });
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-});
-
-// Admin functions
-function setStage(stage){
-  matchStage = stage;
-  matchStatus.textContent = stage;
-  if(stage==="First Half" || stage==="Second Half"){
-    currentMinute = 0;
-    injuryTime = 0;
-    clearInterval(timerInterval);
-    timerInterval = setInterval(()=>{
-      currentMinute++;
-      let timeStr = currentMinute + "'";
-      if(currentMinute > 45 && matchStage==="First Half") timeStr = "45'+" + (currentMinute-45);
-      if(currentMinute > 90 && matchStage==="Second Half") timeStr = "90'+" + (currentMinute-90);
-      matchStatus.textContent = stage + " " + timeStr;
-    }, 1000); // 1 second = 1 minute for testing; adjust to real timing
-  } else {
-    clearInterval(timerInterval);
-  }
-}
-
-function addGoal(){
-  const player = document.getElementById('goalPlayer').value.trim();
-  const team = document.getElementById('goalTeam').value;
-  if(!player) return;
-  const goalData = {player, team, time:currentMinute};
-  const goalRef = db.ref('goals').push();
-  goalRef.set(goalData);
-  document.getElementById('goalPlayer').value = "";
-}
-
-// Cards and goal effects
-function addCard(type){
-  const effect = document.createElement('div');
-  effect.className = "effect "+type;
-  effect.style.top = "10px";
-  effect.style.left = type==="red" ? "60%" : "40%";
-  document.getElementById('scoreboardWrapper').appendChild(effect);
-  setTimeout(()=> effect.remove(), 2000);
-}
-
-// Listen for goals
-db.ref('goals').on('value', snapshot=>{
-  team1Scorers.innerHTML = "";
-  team2Scorers.innerHTML = "";
-  const data = snapshot.val();
-  if(data){
-    Object.keys(data).forEach(key=>{
-      const g = data[key];
-      const el = document.createElement('div');
-      el.textContent = g.player + " " + g.time + "'";
-      if(g.team==='team1') team1Scorers.appendChild(el);
-      else team2Scorers.appendChild(el);
-
-      // Hexagonal effect
-      const effect = document.createElement('div');
-      effect.className="effect goal";
-      effect.style.top = "0px";
-      effect.style.left = g.team==='team1' ? "20%" : "70%";
-      document.getElementById('scoreboardWrapper').appendChild(effect);
-      setTimeout(()=> effect.remove(), 1000);
-    });
-  }
-});
-
-// Listen for score update automatically
-db.ref('goals').on('child_added', snapshot=>{
-  const data = snapshot.val();
-  let team1 = 0, team2=0;
-  db.ref('goals').once('value', snap=>{
-    const all = snap.val();
-    Object.keys(all).forEach(k=>{
-      if(all[k].team==='team1') team1++;
-      else team2++;
-    });
-    scoreBoard.textContent = team1 + " : " + team2;
+  // Enter key sends message
+  chatInput.addEventListener('keypress', e => {
+    if(e.key === 'Enter') sendBtn.click();
   });
-});
+
+  // Listen for messages
+  db.ref('chat').on('value', snapshot => {
+    chatBox.innerHTML = '';
+    const data = snapshot.val();
+    if(data){
+      Object.keys(data).forEach(key => {
+        const msgData = data[key];
+        const msgEl = document.createElement('div');
+        msgEl.textContent = msgData.message;
+        msgEl.className = "message " + (msgData.sender === 'me' ? 'right' : 'left');
+        chatBox.appendChild(msgEl);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    }
+  });
+
+  // Full match details button
+  document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
+    alert("Full match timeline and events would appear here.");
+  });
 </script>
+
 </body>
 </html>
