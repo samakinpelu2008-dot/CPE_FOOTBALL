@@ -4,22 +4,22 @@
 <meta charset="UTF-8">
 <title>CPE Live Match</title>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
+* { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f0f2f5;
+  overflow: hidden;
 }
 
 /* SCOREBOARD */
 #scoreboard {
   background: #fff;
-  padding: 15px;
-  text-align: center;
+  padding: 14px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -35,36 +35,50 @@ body {
 }
 
 .team img {
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
 }
 
 .score {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: bold;
 }
 
 #middleInfo {
-  margin-top: 8px;
+  text-align: center;
   font-size: 14px;
+  margin-top: 6px;
   color: #666;
+}
+
+/* FULL TIME GLOW */
+.winner {
+  background: rgba(0,0,0,0.05);
+  border-radius: 14px;
+  animation: pop 0.6s ease;
+}
+@keyframes pop {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
 }
 
 /* TIMELINE */
 #timeline {
   padding: 10px;
   font-size: 13px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
 }
 
 /* CHAT */
 #chat {
-  height: 45vh;
+  height: 42vh;
   overflow-y: auto;
   padding: 10px;
 }
 
-.message-wrap {
+.msgWrap {
   display: flex;
   margin: 6px 0;
 }
@@ -73,30 +87,10 @@ body {
   padding: 10px 14px;
   border-radius: 16px;
   max-width: 70%;
-  font-size: 14px;
 }
 
-.left {
-  background: #fff;
-  margin-right: auto;
-}
-
-.right {
-  background: #0084ff;
-  color: white;
-  margin-left: auto;
-}
-
-.menu {
-  margin-left: 6px;
-  cursor: pointer;
-}
-
-.delete {
-  font-size: 12px;
-  color: red;
-  cursor: pointer;
-}
+.left { background: #fff; margin-right: auto; }
+.right { background: #0084ff; color: #fff; margin-left: auto; }
 
 /* INPUT */
 #inputArea {
@@ -117,9 +111,9 @@ body {
   margin-left: 8px;
   padding: 10px 16px;
   border-radius: 20px;
-  border: none;
   background: #0084ff;
-  color: white;
+  color: #fff;
+  border: none;
 }
 
 /* ADMIN */
@@ -136,25 +130,20 @@ body {
 
 #adminPanel {
   display: none;
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 300px;
-  height: 100%;
-  background: #fff;
-  border-left: 1px solid #ddd;
-  padding: 10px;
+  max-height: 35vh;
   overflow-y: auto;
+  background: #fff;
+  border-top: 2px solid #000;
+  padding: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- SCOREBOARD -->
 <div id="scoreboard">
   <div class="teams">
-    <div class="team">
+    <div class="team" id="homeBox">
       <img id="homeLogo">
       <div id="homeName">Home</div>
     </div>
@@ -163,7 +152,7 @@ body {
       <span id="homeScore">0</span> - <span id="awayScore">0</span>
     </div>
 
-    <div class="team">
+    <div class="team" id="awayBox">
       <img id="awayLogo">
       <div id="awayName">Away</div>
     </div>
@@ -171,35 +160,35 @@ body {
   <div id="middleInfo">Pre-Match</div>
 </div>
 
-<!-- TIMELINE -->
 <div id="timeline"></div>
 
-<!-- CHAT -->
 <div id="chat"></div>
 
 <div id="inputArea">
-  <input id="msgInput" placeholder="Type a message...">
+  <input id="msgInput" placeholder="Type a message…">
   <button id="sendBtn">SEND</button>
 </div>
 
 <div id="adminBtn">ADMIN</div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel">
   <h3>Admin Panel</h3>
 
-  <input id="homeTeamName" placeholder="Home Team Name"><br>
-  <input id="homeTeamLogo" placeholder="Home Logo URL"><br><br>
+  <input id="homeTeamName" placeholder="Home team name"><br>
+  <input id="homeTeamLogo" placeholder="Home logo URL"><br><br>
 
-  <input id="awayTeamName" placeholder="Away Team Name"><br>
-  <input id="awayTeamLogo" placeholder="Away Logo URL"><br><br>
+  <input id="awayTeamName" placeholder="Away team name"><br>
+  <input id="awayTeamLogo" placeholder="Away logo URL"><br><br>
+
+  <button onclick="setTeams()">Set Teams</button>
+  <hr>
 
   <select id="stage">
-    <option>Pre-match</option>
-    <option>First half</option>
-    <option>Half time</option>
-    <option>Second half</option>
-    <option>Full time</option>
+    <option value="pre">Pre-match</option>
+    <option value="first">First Half</option>
+    <option value="half">Half Time</option>
+    <option value="second">Second Half</option>
+    <option value="full">Full Time</option>
   </select>
   <button onclick="updateStage()">Update Stage</button>
 
@@ -207,11 +196,15 @@ body {
 
   <button onclick="addGoal('home')">Home Goal</button>
   <button onclick="addGoal('away')">Away Goal</button>
+
+  <hr>
+  <button onclick="resetMatch()">RESET MATCH</button>
+  <button onclick="resetChat()">RESET CHAT</button>
 </div>
 
 <script>
 /* FIREBASE */
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
   authDomain: "fresherscuplive.firebaseapp.com",
   databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
@@ -219,8 +212,7 @@ const firebaseConfig = {
   storageBucket: "fresherscuplive.firebasestorage.app",
   messagingSenderId: "502451588704",
   appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
-};
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.database();
 
 /* USER */
@@ -228,78 +220,97 @@ let user = localStorage.getItem("user") || prompt("Your name?");
 localStorage.setItem("user", user);
 
 /* ADMIN */
-document.getElementById("adminBtn").onclick = () => {
-  const pass = prompt("Admin password");
-  if (pass === "CPE2026") {
-    document.getElementById("adminPanel").style.display = "block";
+adminBtn.onclick = () => {
+  if (prompt("Admin password") === "CPE2026") {
+    adminPanel.style.display = "block";
+    document.body.style.overflow = "hidden";
   }
 };
 
+/* TEAM SET (LOCKED UNTIL RESET) */
+function setTeams() {
+  db.ref("match/teams").once("value", s => {
+    if (s.exists()) return alert("Teams already set. Use RESET MATCH.");
+    db.ref("match/teams").set({
+      home: { name: homeTeamName.value, logo: homeTeamLogo.value, score: 0 },
+      away: { name: awayTeamName.value, logo: awayTeamLogo.value, score: 0 }
+    });
+  });
+}
+
+/* STAGE */
 function updateStage() {
-  const stage = document.getElementById("stage").value;
-  let info = stage;
-
-  if (stage === "Pre-match") {
-    const day = prompt("Match day?");
-    const time = prompt("Match time?");
-    info = day + " • " + time;
+  const st = stage.value;
+  if (st === "pre") {
+    const d = prompt("Match day?");
+    const t = prompt("Match time?");
+    db.ref("match/stage").set({ stage: "pre", info: d + " • " + t });
   }
-
-  db.ref("match").update({
-    stage: stage,
-    middleInfo: info,
-    homeName: homeTeamName.value,
-    homeLogo: homeTeamLogo.value,
-    awayName: awayTeamName.value,
-    awayLogo: awayTeamLogo.value
-  });
+  if (st === "first") {
+    const mins = prompt("Minutes per half? (10/20/30/40)");
+    db.ref("match/timer").set({ start: Date.now(), half: 1, limit: +mins });
+    db.ref("match/stage").set({ stage: "first" });
+  }
+  if (st === "full") db.ref("match/stage").set({ stage: "full" });
 }
 
+/* GOAL */
 function addGoal(side) {
-  const scorer = prompt("Goal scorer?");
-  const minute = prompt("Minute?");
-  db.ref("timeline").push({
-    text: "⚽ " + scorer + " " + minute + "'",
-    side: side
-  });
-  db.ref("match/" + side + "Score").transaction(n => (n || 0) + 1);
+  const name = prompt("Scorer?");
+  db.ref("match/teams/" + side + "/score").transaction(n => (n||0)+1);
+  db.ref("timeline").push("⚽ " + name);
 }
 
-/* READ MATCH */
+/* RESET */
+function resetMatch() {
+  if (!confirm("Reset entire match?")) return;
+  db.ref("match").remove();
+  db.ref("timeline").remove();
+}
+function resetChat() {
+  if (!confirm("Reset chat?")) return;
+  db.ref("chat").remove();
+}
+
+/* READ */
 db.ref("match").on("value", s => {
   const d = s.val() || {};
-  homeName.textContent = d.homeName || "Home";
-  awayName.textContent = d.awayName || "Away";
-  homeLogo.src = d.homeLogo || "";
-  awayLogo.src = d.awayLogo || "";
-  homeScore.textContent = d.homeScore || 0;
-  awayScore.textContent = d.awayScore || 0;
-  middleInfo.textContent = d.middleInfo || "";
+  if (d.teams) {
+    homeName.textContent = d.teams.home.name;
+    awayName.textContent = d.teams.away.name;
+    homeLogo.src = d.teams.home.logo;
+    awayLogo.src = d.teams.away.logo;
+    homeScore.textContent = d.teams.home.score;
+    awayScore.textContent = d.teams.away.score;
+  }
+  if (d.stage?.stage === "full") {
+    (d.teams.home.score > d.teams.away.score ? homeBox : awayBox)
+      .classList.add("winner");
+  }
+  middleInfo.textContent = d.stage?.info || d.stage?.stage || "";
 });
 
-/* TIMELINE */
 db.ref("timeline").on("child_added", s => {
   const div = document.createElement("div");
-  div.textContent = s.val().text;
+  div.textContent = s.val();
   timeline.appendChild(div);
 });
 
 /* CHAT */
 sendBtn.onclick = () => {
   if (!msgInput.value) return;
-  db.ref("chat").push({ user, text: msgInput.value });
+  db.ref("chat").push({ u: user, t: msgInput.value });
   msgInput.value = "";
 };
-
 db.ref("chat").on("value", s => {
   chat.innerHTML = "";
   s.forEach(c => {
     const d = c.val();
     const w = document.createElement("div");
-    w.className = "message-wrap";
+    w.className = "msgWrap";
     const m = document.createElement("div");
-    m.className = "msg " + (d.user === user ? "right" : "left");
-    m.textContent = d.text;
+    m.className = "msg " + (d.u === user ? "right" : "left");
+    m.textContent = d.t;
     w.appendChild(m);
     chat.appendChild(w);
   });
