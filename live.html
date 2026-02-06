@@ -2,90 +2,129 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Live Score</title>
+  <title>Live Match</title>
   <style>
-    /* ======= CSS ======= */
     body {
-      background-color: #121212;
-      color: #fff;
+      background-color: #f0f2f5;
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-    }
-
-    .topbar {
+      padding: 20px;
       display: flex;
+      justify-content: center;
+      align-items: start;
+      min-height: 100vh;
+    }
+
+    .match-card {
+      background-color: #fff;
+      width: 40%;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      padding: 10px 20px;
-      background-color: #1e1e1e;
-      gap: 20px;
     }
 
-    .topbar img {
-      width: 40px;
-      height: 40px;
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
     }
 
-    .topbar span {
-      font-size: 18px;
+    .team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 40%;
+    }
+
+    .team img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .score {
+      font-size: 32px;
       font-weight: bold;
+      margin: 0 10px;
     }
 
-    .scores {
+    hr {
+      width: 100%;
+      border: 0.5px solid #ddd;
+      margin: 10px 0;
+    }
+
+    .scorers {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 24px;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 14px;
+      color: #555;
     }
 
     .buttons-container {
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin: 30px 0;
+      margin-top: 30px;
+      width: 40%;
     }
 
     .button {
-      padding: 20px 40px;
-      border-radius: 15px;
+      padding: 15px 30px;
+      border-radius: 10px;
       background-color: #1e1e1e;
-      cursor: pointer;
-      font-size: 20px;
+      color: #fff;
       font-weight: bold;
-      transition: transform 0.2s, background 0.2s;
+      cursor: pointer;
+      transition: 0.2s;
     }
 
     .button:hover {
-      transform: scale(1.05);
       background-color: #0a58ff;
     }
 
     #backBtn {
       cursor: pointer;
+      align-self: flex-start;
       font-size: 24px;
+      margin-bottom: 10px;
       color: #0a58ff;
     }
   </style>
 </head>
 <body>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <span id="backBtn">🪃</span>
-    <div class="scores">
-      <img id="homeLogo" src="" alt="Home Logo">
-      <span id="homeScore">0</span>
-      <span>-</span>
-      <span id="awayScore">0</span>
-      <img id="awayLogo" src="" alt="Away Logo">
-      <span id="matchTimer">0'</span>
-    </div>
-  </div>
+  <div>
+    <div id="backBtn">🪃 Back</div>
 
-  <!-- BUTTONS -->
-  <div class="buttons-container">
-    <div class="button" onclick="goToPage('bet')">BET</div>
-    <div class="button" onclick="goToPage('chat')">CHAT</div>
+    <div class="match-card">
+      <div class="top-row">
+        <div class="team" id="homeTeam">
+          <img id="homeLogo" src="" alt="Home Logo">
+          <div id="homeScorers"></div>
+        </div>
+
+        <div class="score" id="matchScore">0 - 0</div>
+
+        <div class="team" id="awayTeam">
+          <img id="awayLogo" src="" alt="Away Logo">
+          <div id="awayScorers"></div>
+        </div>
+      </div>
+
+      <hr>
+    </div>
+
+    <div class="buttons-container">
+      <div class="button" onclick="goToPage('bet')">BET</div>
+      <div class="button" onclick="goToPage('chat')">CHAT</div>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -93,7 +132,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
   <script>
-    // ======= Firebase Setup =======
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
       authDomain: "fresherscuplive.firebaseapp.com",
@@ -106,7 +145,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // ======= Navigation =======
+    // Navigation
     document.getElementById("backBtn").onclick = () => {
       window.location.href = "index.html";
     };
@@ -115,26 +154,26 @@
       window.location.href = page + '.html';
     }
 
-    // ======= Live Scores & Timer =======
+    // Elements
     const homeLogo = document.getElementById("homeLogo");
     const awayLogo = document.getElementById("awayLogo");
-    const homeScore = document.getElementById("homeScore");
-    const awayScore = document.getElementById("awayScore");
-    const matchTimer = document.getElementById("matchTimer");
+    const matchScore = document.getElementById("matchScore");
+    const homeScorers = document.getElementById("homeScorers");
+    const awayScorers = document.getElementById("awayScorers");
 
+    // Listen to live match
     database.ref("match").on("value", snap => {
       const m = snap.val();
 
       homeLogo.src = m.teams.home.logo;
       awayLogo.src = m.teams.away.logo;
-      homeScore.innerText = m.teams.home.score;
-      awayScore.innerText = m.teams.away.score;
 
-      let timeText = m.time.minute;
-      if (m.time.injury) timeText += `+${m.time.injury}`;
-      matchTimer.innerText = `${timeText}'`;
+      matchScore.innerText = `${m.teams.home.score} - ${m.teams.away.score}`;
+
+      // Show goal scorers
+      homeScorers.innerHTML = m.teams.home.scorers ? m.teams.home.scorers.join('<br>') : '';
+      awayScorers.innerHTML = m.teams.away.scorers ? m.teams.away.scorers.join('<br>') : '';
     });
   </script>
-
 </body>
 </html>
