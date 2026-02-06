@@ -3,142 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <title>CPE Live Match</title>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f0f2f5;
-  overflow: hidden;
-}
+* { box-sizing: border-box; margin:0; padding:0; font-family: Arial,sans-serif; }
+body { background:#f0f2f5; overflow:hidden; height:100vh; display:flex; flex-direction:column; }
 
-/* SCOREBOARD */
-#scoreboard {
-  background: #fff;
-  padding: 14px;
-  border-bottom: 1px solid #ddd;
-}
+#scoreboard { background:#fff; padding:14px; border-bottom:1px solid #ddd; }
+.teams { display:flex; justify-content:space-between; align-items:center; }
+.team { width:40%; text-align:center; }
+.team img { width:50px; height:50px; object-fit:contain; border-radius:50%; transition: transform 0.3s ease; }
+.team.winner img { transform: scale(1.3); }
+.score { font-size:34px; font-weight:bold; }
+#middleInfo { text-align:center; font-size:14px; margin-top:6px; color:#666; }
 
-.teams {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+#timeline { padding:10px; font-size:13px; background:#fff; border-bottom:1px solid #ddd; height:10vh; overflow-y:auto; }
 
-.team {
-  width: 40%;
-  text-align: center;
-}
+#chat { flex:1; overflow-y:auto; padding:10px; background:#f0f2f5; }
+.msgWrap { display:flex; margin:6px 0; }
+.msg { padding:10px 14px; border-radius:16px; max-width:70%; word-break:break-word; }
+.left { background:#fff; margin-right:auto; }
+.right { background:#0084ff; color:#fff; margin-left:auto; }
 
-.team img {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-}
+#inputArea { display:flex; padding:10px; background:#fff; border-top:1px solid #ddd; }
+#msgInput { flex:1; padding:10px; border-radius:20px; border:1px solid #ccc; }
+#sendBtn { margin-left:8px; padding:10px 16px; border-radius:20px; background:#0084ff; color:#fff; border:none; cursor:pointer; }
 
-.score {
-  font-size: 34px;
-  font-weight: bold;
-}
+#adminBtn { position:fixed; bottom:80px; right:20px; padding:12px; border-radius:50%; background:black; color:white; cursor:pointer; }
 
-#middleInfo {
-  text-align: center;
-  font-size: 14px;
-  margin-top: 6px;
-  color: #666;
-}
+#adminPanel { display:none; max-height:40vh; overflow-y:auto; background:#fff; border-top:2px solid #000; padding:12px; }
 
-/* FULL TIME GLOW */
-.winner {
-  background: rgba(0,0,0,0.05);
-  border-radius: 14px;
-  animation: pop 0.6s ease;
-}
-@keyframes pop {
-  from { transform: scale(0.9); }
-  to { transform: scale(1); }
-}
+.winner-glow { background:rgba(0,0,0,0.05); border-radius:14px; animation:pop 0.5s ease; }
+@keyframes pop { from{transform:scale(0.9);} to{transform:scale(1);} }
 
-/* TIMELINE */
-#timeline {
-  padding: 10px;
-  font-size: 13px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-}
-
-/* CHAT */
-#chat {
-  height: 42vh;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.msgWrap {
-  display: flex;
-  margin: 6px 0;
-}
-
-.msg {
-  padding: 10px 14px;
-  border-radius: 16px;
-  max-width: 70%;
-}
-
-.left { background: #fff; margin-right: auto; }
-.right { background: #0084ff; color: #fff; margin-left: auto; }
-
-/* INPUT */
-#inputArea {
-  display: flex;
-  padding: 10px;
-  background: #fff;
-  border-top: 1px solid #ddd;
-}
-
-#msgInput {
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-#sendBtn {
-  margin-left: 8px;
-  padding: 10px 16px;
-  border-radius: 20px;
-  background: #0084ff;
-  color: #fff;
-  border: none;
-}
-
-/* ADMIN */
-#adminBtn {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  padding: 12px;
-  border-radius: 50%;
-  background: black;
-  color: white;
-  cursor: pointer;
-}
-
-#adminPanel {
-  display: none;
-  max-height: 35vh;
-  overflow-y: auto;
-  background: #fff;
-  border-top: 2px solid #000;
-  padding: 12px;
-}
 </style>
 </head>
-
 <body>
 
 <div id="scoreboard">
@@ -147,11 +46,9 @@ body {
       <img id="homeLogo">
       <div id="homeName">Home</div>
     </div>
-
     <div class="score">
       <span id="homeScore">0</span> - <span id="awayScore">0</span>
     </div>
-
     <div class="team" id="awayBox">
       <img id="awayLogo">
       <div id="awayName">Away</div>
@@ -160,8 +57,11 @@ body {
   <div id="middleInfo">Pre-Match</div>
 </div>
 
-<div id="timeline"></div>
+<div>
+  <button id="fullDetailsBtn">FULL MATCH DETAILS</button>
+</div>
 
+<div id="timeline"></div>
 <div id="chat"></div>
 
 <div id="inputArea">
@@ -170,19 +70,14 @@ body {
 </div>
 
 <div id="adminBtn">ADMIN</div>
-
 <div id="adminPanel">
   <h3>Admin Panel</h3>
-
   <input id="homeTeamName" placeholder="Home team name"><br>
   <input id="homeTeamLogo" placeholder="Home logo URL"><br><br>
-
   <input id="awayTeamName" placeholder="Away team name"><br>
   <input id="awayTeamLogo" placeholder="Away logo URL"><br><br>
-
   <button onclick="setTeams()">Set Teams</button>
   <hr>
-
   <select id="stage">
     <option value="pre">Pre-match</option>
     <option value="first">First Half</option>
@@ -191,27 +86,22 @@ body {
     <option value="full">Full Time</option>
   </select>
   <button onclick="updateStage()">Update Stage</button>
-
   <hr>
-
   <button onclick="addGoal('home')">Home Goal</button>
   <button onclick="addGoal('away')">Away Goal</button>
-
   <hr>
   <button onclick="resetMatch()">RESET MATCH</button>
   <button onclick="resetChat()">RESET CHAT</button>
 </div>
 
 <script>
-/* FIREBASE */
 firebase.initializeApp({
-  apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
-  authDomain: "fresherscuplive.firebaseapp.com",
-  databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
-  projectId: "fresherscuplive",
-  storageBucket: "fresherscuplive.firebasestorage.app",
-  messagingSenderId: "502451588704",
-  appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
+  apiKey: "AIzaSyBIUCbVIqFWIvas2DQI77TRdNEg4xvnkS8",
+  authDomain: "cpefootball-934ed.firebaseapp.com",
+  projectId: "cpefootball-934ed",
+  storageBucket: "cpefootball-934ed.firebasestorage.app",
+  messagingSenderId: "314240530293",
+  appId: "1:314240530293:web:1c89774cda136f4661c53c"
 });
 const db = firebase.database();
 
@@ -221,102 +111,105 @@ localStorage.setItem("user", user);
 
 /* ADMIN */
 adminBtn.onclick = () => {
-  if (prompt("Admin password") === "CPE2026") {
-    adminPanel.style.display = "block";
-    document.body.style.overflow = "hidden";
+  if(prompt("Admin password") === "CPE2026"){
+    adminPanel.style.display="block";
   }
 };
 
-/* TEAM SET (LOCKED UNTIL RESET) */
-function setTeams() {
-  db.ref("match/teams").once("value", s => {
-    if (s.exists()) return alert("Teams already set. Use RESET MATCH.");
+/* TEAM SET */
+function setTeams(){
+  db.ref("match/teams").once("value", s=>{
+    if(s.exists()) return alert("Teams already set. Use RESET MATCH.");
     db.ref("match/teams").set({
-      home: { name: homeTeamName.value, logo: homeTeamLogo.value, score: 0 },
-      away: { name: awayTeamName.value, logo: awayTeamLogo.value, score: 0 }
+      home:{name:homeTeamName.value,logo:homeTeamLogo.value,score:0},
+      away:{name:awayTeamName.value,logo:awayTeamLogo.value,score:0}
     });
   });
 }
 
 /* STAGE */
-function updateStage() {
-  const st = stage.value;
-  if (st === "pre") {
-    const d = prompt("Match day?");
-    const t = prompt("Match time?");
-    db.ref("match/stage").set({ stage: "pre", info: d + " • " + t });
+function updateStage(){
+  const st=stage.value;
+  if(st==="pre"){
+    const d=prompt("Match day?");
+    const t=prompt("Match time?");
+    db.ref("match/stage").set({stage:"pre",info:d+" • "+t});
   }
-  if (st === "first") {
-    const mins = prompt("Minutes per half? (10/20/30/40)");
-    db.ref("match/timer").set({ start: Date.now(), half: 1, limit: +mins });
-    db.ref("match/stage").set({ stage: "first" });
+  if(st==="first"){
+    const mins=prompt("Minutes per half? (10/20/30/40)");
+    db.ref("match/timer").set({start:Date.now(),half:1,limit:+mins});
+    db.ref("match/stage").set({stage:"first"});
   }
-  if (st === "full") db.ref("match/stage").set({ stage: "full" });
+  if(st==="full") db.ref("match/stage").set({stage:"full"});
 }
 
 /* GOAL */
-function addGoal(side) {
-  const name = prompt("Scorer?");
-  db.ref("match/teams/" + side + "/score").transaction(n => (n||0)+1);
-  db.ref("timeline").push("⚽ " + name);
+function addGoal(side){
+  const name=prompt("Scorer?");
+  db.ref("match/teams/"+side+"/score").transaction(n=>(n||0)+1);
+  db.ref("timeline").push("⚽ "+name);
 }
 
 /* RESET */
-function resetMatch() {
-  if (!confirm("Reset entire match?")) return;
+function resetMatch(){
+  if(!confirm("Reset entire match?")) return;
   db.ref("match").remove();
   db.ref("timeline").remove();
 }
-function resetChat() {
-  if (!confirm("Reset chat?")) return;
+function resetChat(){
+  if(!confirm("Reset chat?")) return;
   db.ref("chat").remove();
 }
 
-/* READ */
-db.ref("match").on("value", s => {
-  const d = s.val() || {};
-  if (d.teams) {
-    homeName.textContent = d.teams.home.name;
-    awayName.textContent = d.teams.away.name;
-    homeLogo.src = d.teams.home.logo;
-    awayLogo.src = d.teams.away.logo;
-    homeScore.textContent = d.teams.home.score;
-    awayScore.textContent = d.teams.away.score;
+/* READ MATCH */
+db.ref("match").on("value", s=>{
+  const d=s.val()||{};
+  if(d.teams){
+    homeName.textContent=d.teams.home.name;
+    awayName.textContent=d.teams.away.name;
+    homeLogo.src=d.teams.home.logo;
+    awayLogo.src=d.teams.away.logo;
+    homeScore.textContent=d.teams.home.score;
+    awayScore.textContent=d.teams.away.score;
   }
-  if (d.stage?.stage === "full") {
-    (d.teams.home.score > d.teams.away.score ? homeBox : awayBox)
-      .classList.add("winner");
+  if(d.stage?.stage==="full"){
+    (d.teams.home.score>d.teams.away.score?homeBox:awayBox)
+      .classList.add("winner-glow");
   }
-  middleInfo.textContent = d.stage?.info || d.stage?.stage || "";
+  middleInfo.textContent=d.stage?.info||d.stage?.stage||"";
 });
 
-db.ref("timeline").on("child_added", s => {
-  const div = document.createElement("div");
-  div.textContent = s.val();
+/* TIMELINE */
+db.ref("timeline").on("child_added", s=>{
+  const div=document.createElement("div");
+  div.textContent=s.val();
   timeline.appendChild(div);
+  timeline.scrollTop = timeline.scrollHeight;
 });
 
 /* CHAT */
-sendBtn.onclick = () => {
-  if (!msgInput.value) return;
-  db.ref("chat").push({ u: user, t: msgInput.value });
-  msgInput.value = "";
+sendBtn.onclick=()=>{
+  if(!msgInput.value) return;
+  db.ref("chat").push({u:user,t:msgInput.value});
+  msgInput.value="";
 };
-db.ref("chat").on("value", s => {
-  chat.innerHTML = "";
-  s.forEach(c => {
-    const d = c.val();
-    const w = document.createElement("div");
-    w.className = "msgWrap";
-    const m = document.createElement("div");
-    m.className = "msg " + (d.u === user ? "right" : "left");
-    m.textContent = d.t;
+db.ref("chat").on("value", s=>{
+  chat.innerHTML="";
+  s.forEach(c=>{
+    const d=c.val();
+    const w=document.createElement("div");
+    w.className="msgWrap";
+    const m=document.createElement("div");
+    m.className="msg "+(d.u===user?"right":"left");
+    m.textContent=d.t;
+    m.onclick = ()=>{
+      if(d.u===user && confirm("Delete your message?")) c.ref.remove();
+    }
     w.appendChild(m);
     chat.appendChild(w);
   });
-  chat.scrollTop = chat.scrollHeight;
+  chat.scrollTop=chat.scrollHeight;
 });
 </script>
-
 </body>
 </html>
