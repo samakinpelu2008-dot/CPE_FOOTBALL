@@ -18,7 +18,7 @@ body {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  width: 40%; /* compact width */
+  width: 40%;
   min-width: 280px;
   padding: 20px 10px;
   text-align: center;
@@ -33,7 +33,7 @@ body {
 
 .teams-row {
   display: flex;
-  justify-content: space-around; /* center logos with score */
+  justify-content: space-around;
   align-items: center;
   margin-bottom: 5px;
 }
@@ -50,7 +50,7 @@ body {
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s ease;
-  margin-bottom: 5px; /* space for name under logo */
+  margin-bottom: 5px;
 }
 
 .team-name {
@@ -124,11 +124,10 @@ body {
   <div class="divider"></div>
 
   <div class="goal-scorers-row" id="goalScorers">
-    <!-- Goal scorers inline -->
+    <!-- Goal scorers will appear here -->
   </div>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -154,7 +153,7 @@ const awayScore = document.getElementById('awayScore');
 const matchTime = document.getElementById('matchTime');
 const goalScorersDiv = document.getElementById('goalScorers');
 
-// Animate logo + score like Google
+// Animate logo + score (not name)
 function animateGoal(logo, scoreEl){
   logo.style.transform="scale(1.5)";
   scoreEl.style.transform="scale(1.5)";
@@ -164,13 +163,12 @@ function animateGoal(logo, scoreEl){
   },500);
 }
 
-// Add scorer element with animation
+// Add scorer element with Google-like pop animation
 function addScorer(team, scorer){
-  const divs = document.querySelectorAll(`#goalScorers div`);
-  let targetDiv = team === 'home' ? divs[0] : divs[1];
+  const rowDivs = document.querySelectorAll('#goalScorers > div');
+  let targetDiv = team === 'home' ? rowDivs[0] : rowDivs[1];
 
   if(!targetDiv){
-    // create divs if they don't exist
     targetDiv = document.createElement('div');
     goalScorersDiv.appendChild(targetDiv);
   }
@@ -180,7 +178,6 @@ function addScorer(team, scorer){
   scorerEl.innerText = scorer + " ⚽";
   targetDiv.appendChild(scorerEl);
 
-  // Trigger animation
   setTimeout(()=> scorerEl.classList.add('show'), 50);
 }
 
@@ -200,29 +197,18 @@ db.ref("match").on("value", snap=>{
   if(m.time.injury) timeText += '+' + m.time.injury;
   matchTime.innerText = timeText;
 
-  // Clear goal scorers
+  // Clear scorers
   goalScorersDiv.innerHTML = '';
-
   const homeDiv = document.createElement('div');
   const awayDiv = document.createElement('div');
   goalScorersDiv.appendChild(homeDiv);
   goalScorersDiv.appendChild(awayDiv);
 
-  (m.teams.home.scorers||[]).forEach(s=>{
-    const el = document.createElement('div');
-    el.classList.add('goal-scorer','show');
-    el.innerText = s + " ⚽";
-    homeDiv.appendChild(el);
-  });
-  (m.teams.away.scorers||[]).forEach(s=>{
-    const el = document.createElement('div');
-    el.classList.add('goal-scorer','show');
-    el.innerText = s + " ⚽";
-    awayDiv.appendChild(el);
-  });
+  (m.teams.home.scorers||[]).forEach(s=>addScorer('home', s));
+  (m.teams.away.scorers||[]).forEach(s=>addScorer('away', s));
 });
 
-// Click to add goal scorer
+// Click logo to add scorer
 homeLogo.addEventListener('click', ()=>{
   const name = prompt('Enter scorer name for ' + homeName.innerText);
   const time = prompt('Enter minute');
