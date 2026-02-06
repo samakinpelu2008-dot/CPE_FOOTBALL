@@ -1,243 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Live Match Score</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* ======= Google-style Scoreboard CSS ======= */
-    body {
-      background-color: #f2f2f2;
-      font-family: 'Roboto', Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Match Score</title>
+<style>
+body {
+  background: #f2f2f2;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
 
-    .scoreboard {
-      width: 360px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 15px 20px;
-      text-align: center;
-    }
+.scorecard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  width: 360px;
+  padding: 20px;
+  text-align: center;
+}
 
-    .match-time {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 10px;
-      font-weight: 500;
-    }
+.match-time {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
 
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+.teams-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
 
-    .team {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 35%;
-    }
+.team-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
 
-    .team-logo {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-      margin-bottom: 5px;
-    }
+.score {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 10px;
+}
 
-    .team-name {
-      font-size: 13px;
-      font-weight: 500;
-      color: #222;
-      text-align: center;
-      margin-bottom: 5px;
-    }
+.team-name-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #222;
+}
 
-    .score {
-      font-size: 32px;
-      font-weight: 700;
-      color: #111;
-    }
+.goal-scorers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  flex-wrap: wrap;
+}
 
-    .separator {
-      margin: 0 5px;
-      font-size: 28px;
-      font-weight: 700;
-      color: #222;
-    }
+.goal-scorer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+}
 
-    .divider {
-      height: 1px;
-      background-color: #e0e0e0;
-      margin: 10px 0;
-      width: 100%;
-    }
+.goal-scorer span {
+  margin-left: 4px;
+}
 
-    .scorers {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #555;
-      margin-top: 5px;
-    }
+.divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 5px 0 10px 0;
+}
 
-    .scorers div {
-      width: 45%;
-      text-align: left;
-    }
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
 
-    .scorers b {
-      font-size: 12px;
-      display: block;
-      margin-bottom: 2px;
-    }
+.button {
+  padding: 10px 25px;
+  border-radius: 8px;
+  background: #1e1e1e;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    .buttons {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
+.button:hover {
+  background: #0a58ff;
+}
 
-    .button {
-      padding: 10px 25px;
-      border-radius: 8px;
-      background-color: #1e1e1e;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      margin-bottom: 10px;
-    }
-
-    .button:hover {
-      background-color: #0a58ff;
-    }
-
-    #backBtn {
-      cursor: pointer;
-      font-size: 20px;
-      color: #0a58ff;
-      margin-bottom: 10px;
-      text-align: left;
-    }
-
-    /* Mobile responsive */
-    @media(max-width: 400px) {
-      .scoreboard { width: 95%; }
-      .teams { flex-direction: column; }
-      .score { margin: 10px 0; }
-      .scorers { flex-direction: column; }
-      .scorers div { width: 100%; margin-bottom: 5px; }
-    }
-
-  </style>
+#backBtn {
+  cursor: pointer;
+  font-size: 20px;
+  color: #0a58ff;
+  margin-bottom: 10px;
+  text-align: left;
+}
+</style>
 </head>
 <body>
 
-  <div>
-    <div id="backBtn" onclick="goToPage('index')">🪃 Back</div>
+<div>
+  <div id="backBtn" onclick="goToPage('index')">🪃 Back</div>
 
-    <div class="scoreboard">
-      <div class="match-time" id="matchTime">00'</div>
+  <div class="scorecard">
+    <div class="match-time" id="matchTime">19'</div>
 
-      <div class="teams">
-        <div class="team">
-          <img id="homeLogo" class="team-logo" src="">
-          <div id="homeName" class="team-name">HOME</div>
-        </div>
-
-        <div class="score">
-          <span id="homeScore">0</span>
-          <span class="separator">-</span>
-          <span id="awayScore">0</span>
-        </div>
-
-        <div class="team">
-          <img id="awayLogo" class="team-logo" src="">
-          <div id="awayName" class="team-name">AWAY</div>
-        </div>
+    <div class="teams-row">
+      <img id="homeLogo" class="team-logo" src="">
+      <div class="score">
+        <span id="homeScore">0</span> - <span id="awayScore">0</span>
       </div>
-
-      <div class="divider"></div>
-
-      <div class="scorers">
-        <div>
-          <b>Home Scorers:</b>
-          <div id="homeScorers"></div>
-        </div>
-        <div>
-          <b>Away Scorers:</b>
-          <div id="awayScorers"></div>
-        </div>
-      </div>
+      <img id="awayLogo" class="team-logo" src="">
     </div>
 
-    <div class="buttons">
-      <div class="button" onclick="goToPage('bet')">BET</div>
-      <div class="button" onclick="goToPage('chat')">CHAT</div>
+    <div class="team-name-row">
+      <div id="homeName">CPE</div>
+      <div id="awayName">BMG</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="goal-scorers-row" id="goalScorers">
+      <!-- Goal scorers will appear here inline like Samuel 5' ⚽ -->
     </div>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <div class="buttons">
+    <div class="button" onclick="goToPage('bet')">BET</div>
+    <div class="button" onclick="goToPage('chat')">CHAT</div>
+  </div>
+</div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
-      authDomain: "fresherscuplive.firebaseapp.com",
-      databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
-      projectId: "fresherscuplive",
-      storageBucket: "fresherscuplive.firebasestorage.app",
-      messagingSenderId: "502451588704",
-      appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    // Navigation
-    function goToPage(page) { window.location.href = page + '.html'; }
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
+  authDomain: "fresherscuplive.firebaseapp.com",
+  databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
+  projectId: "fresherscuplive",
+  storageBucket: "fresherscuplive.firebasestorage.app",
+  messagingSenderId: "502451588704",
+  appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    // Elements
-    const homeLogo = document.getElementById("homeLogo");
-    const awayLogo = document.getElementById("awayLogo");
-    const homeName = document.getElementById("homeName");
-    const awayName = document.getElementById("awayName");
-    const homeScore = document.getElementById("homeScore");
-    const awayScore = document.getElementById("awayScore");
-    const matchTime = document.getElementById("matchTime");
-    const homeScorers = document.getElementById("homeScorers");
-    const awayScorers = document.getElementById("awayScorers");
+// Navigation
+function goToPage(page){ window.location.href = page+'.html'; }
 
-    // Firebase live listener
-    db.ref("match").on("value", snap => {
-      const m = snap.val();
-      if (!m) return;
+// Elements
+const homeLogo = document.getElementById('homeLogo');
+const awayLogo = document.getElementById('awayLogo');
+const homeName = document.getElementById('homeName');
+const awayName = document.getElementById('awayName');
+const homeScore = document.getElementById('homeScore');
+const awayScore = document.getElementById('awayScore');
+const matchTime = document.getElementById('matchTime');
+const goalScorersDiv = document.getElementById('goalScorers');
 
-      homeLogo.src = m.teams.home.logo;
-      awayLogo.src = m.teams.away.logo;
-      homeName.innerText = m.teams.home.name;
-      awayName.innerText = m.teams.away.name;
-      homeScore.innerText = m.teams.home.score;
-      awayScore.innerText = m.teams.away.score;
+// Firebase live listener
+db.ref("match").on("value", snap => {
+  const m = snap.val();
+  if(!m) return;
 
-      let timeText = m.time.minute + "'";
-      if (m.time.injury) timeText += '+' + m.time.injury;
-      matchTime.innerText = timeText;
+  homeLogo.src = m.teams.home.logo;
+  awayLogo.src = m.teams.away.logo;
+  homeName.innerText = m.teams.home.name;
+  awayName.innerText = m.teams.away.name;
+  homeScore.innerText = m.teams.home.score;
+  awayScore.innerText = m.teams.away.score;
 
-      homeScorers.innerText = (m.teams.home.scorers || []).join(", ");
-      awayScorers.innerText = (m.teams.away.scorers || []).join(", ");
-    });
-  </script>
+  let timeText = m.time.minute + "'";
+  if(m.time.injury) timeText += '+' + m.time.injury;
+  matchTime.innerText = timeText;
+
+  // Combine scorers inline like Samuel 5' ⚽ Ola 7'
+  goalScorersDiv.innerHTML = '';
+  const homeScorers = m.teams.home.scorers || [];
+  const awayScorers = m.teams.away.scorers || [];
+
+  const maxLen = Math.max(homeScorers.length, awayScorers.length);
+  for(let i=0;i<maxLen;i++){
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.width = '100%';
+
+    const homeSc = homeScorers[i] ? homeScorers[i] + ' ⚽' : '';
+    const awaySc = awayScorers[i] ? awayScorers[i] + ' ⚽' : '';
+    
+    row.innerHTML = `<div>${homeSc}</div><div>${awaySc}</div>`;
+    goalScorersDiv.appendChild(row);
+  }
+});
+</script>
 
 </body>
 </html>
