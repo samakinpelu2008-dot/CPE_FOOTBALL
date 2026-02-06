@@ -20,7 +20,7 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   width: 40%; /* compact width */
   min-width: 280px;
-  padding: 15px 10px;
+  padding: 20px 10px;
   text-align: center;
 }
 
@@ -33,7 +33,7 @@ body {
 
 .teams-row {
   display: flex;
-  justify-content: space-around; /* centers logos */
+  justify-content: space-around; /* center logos with score */
   align-items: center;
   margin-bottom: 5px;
 }
@@ -50,40 +50,20 @@ body {
   object-fit: contain;
   cursor: pointer;
   transition: transform 0.3s ease;
+  margin-bottom: 5px; /* space for name under logo */
+}
+
+.team-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
 }
 
 .score {
   font-size: 32px;
   font-weight: bold;
-  margin: 0 10px;
+  margin: 0 15px;
   transition: transform 0.3s ease;
-}
-
-.team-name-row {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
-  font-weight: 500;
-  color: #222;
-}
-
-.goal-scorers-row {
-  display: flex;
-  justify-content: space-around;
-  font-size: 12px;
-  color: #555;
-  margin-top: 5px;
-  flex-wrap: wrap;
-}
-
-.goal-scorer {
-  display: flex;
-  align-items: center;
-  margin-bottom: 3px;
-}
-
-.goal-scorer span {
-  margin-left: 4px;
 }
 
 .divider {
@@ -92,6 +72,32 @@ body {
   margin: 5px 0 10px 0;
 }
 
+.goal-scorers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+
+.goal-scorers-row div {
+  width: 45%;
+  text-align: left;
+}
+
+.goal-scorer {
+  display: inline-block;
+  margin: 2px 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.5s ease;
+}
+
+.goal-scorer.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -102,6 +108,7 @@ body {
   <div class="teams-row">
     <div class="team">
       <img id="homeLogo" class="team-logo" src="">
+      <div id="homeName" class="team-name">CPE</div>
     </div>
 
     <div class="score">
@@ -110,18 +117,14 @@ body {
 
     <div class="team">
       <img id="awayLogo" class="team-logo" src="">
+      <div id="awayName" class="team-name">BMG</div>
     </div>
-  </div>
-
-  <div class="team-name-row">
-    <div id="homeName">CPE</div>
-    <div id="awayName">BMG</div>
   </div>
 
   <div class="divider"></div>
 
   <div class="goal-scorers-row" id="goalScorers">
-    <!-- scorers inline here -->
+    <!-- Goal scorers inline -->
   </div>
 </div>
 
@@ -151,14 +154,34 @@ const awayScore = document.getElementById('awayScore');
 const matchTime = document.getElementById('matchTime');
 const goalScorersDiv = document.getElementById('goalScorers');
 
-// Function to animate score/logo when goal
-function animateGoal(logo, scoreEl) {
-  logo.style.transform = "scale(1.4)";
-  scoreEl.style.transform = "scale(1.4)";
+// Animate logo + score like Google
+function animateGoal(logo, scoreEl){
+  logo.style.transform="scale(1.5)";
+  scoreEl.style.transform="scale(1.5)";
   setTimeout(()=>{
-    logo.style.transform = "scale(1)";
-    scoreEl.style.transform = "scale(1)";
-  }, 500);
+    logo.style.transform="scale(1)";
+    scoreEl.style.transform="scale(1)";
+  },500);
+}
+
+// Add scorer element with animation
+function addScorer(team, scorer){
+  const divs = document.querySelectorAll(`#goalScorers div`);
+  let targetDiv = team === 'home' ? divs[0] : divs[1];
+
+  if(!targetDiv){
+    // create divs if they don't exist
+    targetDiv = document.createElement('div');
+    goalScorersDiv.appendChild(targetDiv);
+  }
+
+  const scorerEl = document.createElement('div');
+  scorerEl.classList.add('goal-scorer');
+  scorerEl.innerText = scorer + " ⚽";
+  targetDiv.appendChild(scorerEl);
+
+  // Trigger animation
+  setTimeout(()=> scorerEl.classList.add('show'), 50);
 }
 
 // Firebase listener
@@ -177,17 +200,26 @@ db.ref("match").on("value", snap=>{
   if(m.time.injury) timeText += '+' + m.time.injury;
   matchTime.innerText = timeText;
 
-  // Display goal scorers inline
+  // Clear goal scorers
   goalScorersDiv.innerHTML = '';
-  const maxLen = Math.max((m.teams.home.scorers||[]).length,(m.teams.away.scorers||[]).length);
-  for(let i=0;i<maxLen;i++){
-    const row = document.createElement('div');
-    row.style.display='flex';
-    row.style.justifyContent='space-between';
-    row.style.width='100%';
-    row.innerHTML = `<div>${m.teams.home.scorers?.[i]||''}</div><div>${m.teams.away.scorers?.[i]||''}</div>`;
-    goalScorersDiv.appendChild(row);
-  }
+
+  const homeDiv = document.createElement('div');
+  const awayDiv = document.createElement('div');
+  goalScorersDiv.appendChild(homeDiv);
+  goalScorersDiv.appendChild(awayDiv);
+
+  (m.teams.home.scorers||[]).forEach(s=>{
+    const el = document.createElement('div');
+    el.classList.add('goal-scorer','show');
+    el.innerText = s + " ⚽";
+    homeDiv.appendChild(el);
+  });
+  (m.teams.away.scorers||[]).forEach(s=>{
+    const el = document.createElement('div');
+    el.classList.add('goal-scorer','show');
+    el.innerText = s + " ⚽";
+    awayDiv.appendChild(el);
+  });
 });
 
 // Click to add goal scorer
@@ -195,23 +227,25 @@ homeLogo.addEventListener('click', ()=>{
   const name = prompt('Enter scorer name for ' + homeName.innerText);
   const time = prompt('Enter minute');
   if(name && time){
+    const scorer = name + ' ' + time + "'";
     db.ref('match/teams/home/scorers').once('value', snap=>{
       const arr = snap.val()||[];
-      arr.push(name + ' ' + time + "'");
+      arr.push(scorer);
       db.ref('match/teams/home/scorers').set(arr);
     });
-    // increment score
     db.ref('match/teams/home/score').transaction(score=>score+1);
     animateGoal(homeLogo, homeScore);
   }
 });
+
 awayLogo.addEventListener('click', ()=>{
   const name = prompt('Enter scorer name for ' + awayName.innerText);
   const time = prompt('Enter minute');
   if(name && time){
+    const scorer = name + ' ' + time + "'";
     db.ref('match/teams/away/scorers').once('value', snap=>{
       const arr = snap.val()||[];
-      arr.push(name + ' ' + time + "'");
+      arr.push(scorer);
       db.ref('match/teams/away/scorers').set(arr);
     });
     db.ref('match/teams/away/score').transaction(score=>score+1);
