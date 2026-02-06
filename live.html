@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Score</title>
+  <style>
+    /* ======= CSS ======= */
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #1e1e1e;
+      gap: 20px;
+    }
+
+    .topbar img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .topbar span {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .scores {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+    }
+
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .button {
+      padding: 20px 40px;
+      border-radius: 15px;
+      background-color: #1e1e1e;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      background-color: #0a58ff;
+    }
+
+    #backBtn {
+      cursor: pointer;
+      font-size: 24px;
+      color: #0a58ff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span id="backBtn">🪃</span>
+    <div class="scores">
+      <img id="homeLogo" src="" alt="Home Logo">
+      <span id="homeScore">0</span>
+      <span>-</span>
+      <span id="awayScore">0</span>
+      <img id="awayLogo" src="" alt="Away Logo">
+      <span id="matchTimer">0'</span>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="buttons-container">
+    <div class="button" onclick="goToPage('bet')">BET</div>
+    <div class="button" onclick="goToPage('chat')">CHAT</div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    // ======= Firebase Setup =======
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
+      authDomain: "fresherscuplive.firebaseapp.com",
+      databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
+      projectId: "fresherscuplive",
+      storageBucket: "fresherscuplive.firebasestorage.app",
+      messagingSenderId: "502451588704",
+      appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // ======= Navigation =======
+    document.getElementById("backBtn").onclick = () => {
+      window.location.href = "index.html";
+    };
+
+    function goToPage(page) {
+      window.location.href = page + '.html';
+    }
+
+    // ======= Live Scores & Timer =======
+    const homeLogo = document.getElementById("homeLogo");
+    const awayLogo = document.getElementById("awayLogo");
+    const homeScore = document.getElementById("homeScore");
+    const awayScore = document.getElementById("awayScore");
+    const matchTimer = document.getElementById("matchTimer");
+
+    database.ref("match").on("value", snap => {
+      const m = snap.val();
+
+      homeLogo.src = m.teams.home.logo;
+      awayLogo.src = m.teams.away.logo;
+      homeScore.innerText = m.teams.home.score;
+      awayScore.innerText = m.teams.away.score;
+
+      let timeText = m.time.minute;
+      if (m.time.injury) timeText += `+${m.time.injury}`;
+      matchTimer.innerText = `${timeText}'`;
+    });
+  </script>
+
+</body>
+</html>
