@@ -38,7 +38,8 @@ body {
 }
 .pop-logo { transform: scale(1.3); transition: transform 0.3s; }
 
-#fullDetailsBtn, #penaltyBtn {
+button { cursor:pointer; }
+#fullDetailsBtn, #penaltyBtn, #startHalfBtn, #resetBtn, #goalBtn {
   padding:8px; border:none; border-radius:8px; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; width:100%;
   margin-top:6px;
 }
@@ -52,6 +53,10 @@ body {
 .input-container { display:flex; gap:6px; margin-top:6px; align-items:center; }
 #chatInput { flex:1; border-radius:25px; padding:10px 15px; border:1px solid #ccc; outline:none; font-size:16px; }
 #sendBtn { border:none; background:#007bff; border-radius:8px; padding:10px 15px; color:#fff; font-weight:bold; cursor:pointer; }
+
+/* Admin panel hidden initially */
+#adminPanel { display:none; flex-direction:column; gap:6px; margin-top:10px; }
+#adminPanel input { padding:6px; border-radius:6px; border:1px solid #ccc; width:100%; }
 </style>
 </head>
 <body>
@@ -92,9 +97,28 @@ body {
     <button id="sendBtn">SEND</button>
   </div>
 
+  <!-- Admin login -->
+  <div class="input-container">
+    <input type="password" id="adminPassword" placeholder="Enter admin password">
+    <button id="adminLoginBtn">LOGIN</button>
+  </div>
+
+  <!-- Admin panel -->
+  <div id="adminPanel">
+    <input type="text" id="team1NameInput" placeholder="Team 1 Name">
+    <input type="text" id="team2NameInput" placeholder="Team 2 Name">
+    <input type="text" id="team1LogoInput" placeholder="Team 1 Logo URL">
+    <input type="text" id="team2LogoInput" placeholder="Team 2 Logo URL">
+    <button id="updateTeamsBtn">Update Teams</button>
+    <input type="number" id="halfDuration" placeholder="Minutes per half">
+    <button id="startHalfBtn">Start Half</button>
+    <input type="text" id="goalScorerName" placeholder="Goal Scorer Name">
+    <button id="goalBtn">Add Goal</button>
+    <button id="resetBtn">RESET MATCH</button>
+  </div>
+
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
@@ -110,7 +134,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// DOM elements
+// DOM
 const chatBox = document.getElementById('chatBox');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
@@ -125,12 +149,28 @@ const team1Scorers = document.getElementById('team1Scorers');
 const team2Scorers = document.getElementById('team2Scorers');
 const matchStatus = document.getElementById('matchStatus');
 
+// Admin DOM
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const adminPanel = document.getElementById('adminPanel');
+const team1NameInput = document.getElementById('team1NameInput');
+const team2NameInput = document.getElementById('team2NameInput');
+const team1LogoInput = document.getElementById('team1LogoInput');
+const team2LogoInput = document.getElementById('team2LogoInput');
+const updateTeamsBtn = document.getElementById('updateTeamsBtn');
+const halfDuration = document.getElementById('halfDuration');
+const startHalfBtn = document.getElementById('startHalfBtn');
+const goalScorerName = document.getElementById('goalScorerName');
+const goalBtn = document.getElementById('goalBtn');
+const resetBtn = document.getElementById('resetBtn');
+
 // Firebase references
 const chatRef = db.ref('chat');
 const scoresRef = db.ref('scores');
 const winnerRef = db.ref('winnerGlow');
 const penaltyRef = db.ref('penalty');
 const matchRef = db.ref('matchStatus');
+const scorersRef = db.ref('goalScorers');
+const teamsRef = db.ref('teams');
 
 // --- CHAT ---
 sendBtn.addEventListener('click', ()=>{
@@ -140,7 +180,6 @@ sendBtn.addEventListener('click', ()=>{
   chatInput.value = '';
 });
 chatInput.addEventListener('keypress', e => { if(e.key==='Enter') sendBtn.click(); });
-
 chatRef.on('value', snap=>{
   chatBox.innerHTML='';
   const data = snap.val();
@@ -156,63 +195,76 @@ chatRef.on('value', snap=>{
   }
 });
 
-// --- FULL MATCH DETAILS ---
-document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
-  alert("Full match timeline and events would appear here.");
-});
+// --- ADMIN LOGIN ---
+adminLoginBtn.onclick = ()=>{
+  if(document.getElementById('adminPassword').value==='1234'){ // admin password
+    adminPanel.style.display='flex';
+    alert('Admin panel unlocked');
+  } else alert('Wrong password');
+};
 
-// --- WINNER GLOW ---
-function showFullTimeWinner(team){
-  if(team===1){
-    team1Glow.style.transform='translateX(-50%) scale(1)';
-    team1Logo.classList.add('pop-logo');
-    team2Glow.style.transform='translateX(-50%) scale(0)';
-    team2Logo.classList.remove('pop-logo');
-  }else if(team===2){
-    team2Glow.style.transform='translateX(-50%) scale(1)';
-    team2Logo.classList.add('pop-logo');
-    team1Glow.style.transform='translateX(-50%) scale(0)';
-    team1Logo.classList.remove('pop-logo');
-  }else{
-    team1Glow.style.transform='translateX(-50%) scale(1)';
-    team1Logo.classList.add('pop-logo');
-    team2Glow.style.transform='translateX(-50%) scale(1)';
-    team2Logo.classList.add('pop-logo');
-  }
-}
+// --- UPDATE TEAMS ---
+updateTeamsBtn.onclick = ()=>{
+  const t1n = team1NameInput.value || 'Team 1';
+  const t2n = team2NameInput.value || 'Team 2';
+  const t1l = team1LogoInput.value || '';
+  const t2l = team2LogoInput.value || '';
+  team1Name.textContent=t1n;
+  team2Name.textContent=t2n;
+  if(t1l) team1Logo.src=t1l;
+  if(t2l) team2Logo.src=t2l;
+  teamsRef.set({team1:{name:t1n,logo:t1l},team2:{name:t2n,logo:t2l}});
+};
 
-// --- FIREBASE LISTENERS ---
+// --- START HALF TIMER ---
+let timerInterval;
+startHalfBtn.onclick = ()=>{
+  let mins = parseInt(halfDuration.value)||45;
+  let seconds=0;
+  matchStatus.textContent=`Live 0'`;
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    seconds++;
+    if(seconds>=60){ mins++; seconds=0; }
+    matchStatus.textContent=`Live ${mins}'`;
+  },1000);
+};
+
+// --- ADD GOAL SCORER ---
+goalBtn.onclick = ()=>{
+  const name = goalScorerName.value.trim();
+  if(!name) return;
+  // Example: add to team1 always
+  scorersRef.push({team:1,name:name,time:parseInt(matchStatus.textContent)||0});
+  goalScorerName.value='';
+};
+
+// --- LISTENERS ---
 // Scores
 scoresRef.on('value', snap=>{
   const s = snap.val();
   if(!s) return;
   scoreBoard.textContent=`${s.team1} : ${s.team2}`;
 });
-
 // Winner glow
 winnerRef.on('value', snap=>{
   const w = snap.val(); if(!w) return;
-  showFullTimeWinner(w);
+  if(w===1){ team1Glow.style.transform='translateX(-50%) scale(1)'; team1Logo.classList.add('pop-logo'); }
+  else if(w===2){ team2Glow.style.transform='translateX(-50%) scale(1)'; team2Logo.classList.add('pop-logo'); }
+  else{ team1Glow.style.transform='translateX(-50%) scale(1)'; team2Glow.style.transform='translateX(-50%) scale(1)'; team1Logo.classList.add('pop-logo'); team2Logo.classList.add('pop-logo'); }
 });
-
-// Penalty updates
-penaltyRef.on('value', snap=>{
-  const p = snap.val(); if(!p) return;
-  scoreBoard.textContent=`${p.team1} : ${p.team2}`;
+// Goal scorers
+scorersRef.on('value', snap=>{
+  const data = snap.val();
+  team1Scorers.textContent='';
+  team2Scorers.textContent='';
+  if(data){
+    Object.values(data).forEach(g=>{
+      if(g.team===1) team1Scorers.textContent+=`${g.name} ${g.time}'  `;
+      else team2Scorers.textContent+=`${g.name} ${g.time}'  `;
+    });
+  }
 });
-
-// --- PENALTY BUTTON ---
-document.getElementById('penaltyBtn').onclick = ()=>{
-  const team1Pen = parseInt(prompt("Team 1 penalty goals:"))||0;
-  const team2Pen = parseInt(prompt("Team 2 penalty goals:"))||0;
-  penaltyRef.set({ team1: team1Pen, team2: team2Pen });
-  let winner=0;
-  if(team1Pen>team2Pen) winner=1;
-  else if(team2Pen>team1Pen) winner=2;
-  else winner=3;
-  winnerRef.set(winner);
-};
-
 </script>
 </body>
 </html>
