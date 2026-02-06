@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Match & Chat</title>
+<title>Live Match & Chat with Delete</title>
 <style>
 body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; display:flex; flex-direction:column; align-items:center; }
 .container { width:95%; max-width:600px; margin-top:20px; display:flex; flex-direction:column; gap:12px; }
@@ -89,6 +89,8 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; 
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
 
+  const userName = prompt("Enter your name") || "me"; // Each user can enter their name
+
   // Send message
   sendBtn.addEventListener('click', () => {
     const msg = chatInput.value.trim();
@@ -96,7 +98,7 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; 
     const newMsgRef = db.ref('chat').push();
     newMsgRef.set({
       message: msg,
-      sender: 'me', // your own message name
+      sender: userName,
       timestamp: Date.now()
     });
     chatInput.value = '';
@@ -116,7 +118,23 @@ body { margin:0; padding:0; font-family: Arial, sans-serif; background:#f0f2f5; 
         const msgData = data[key];
         const msgEl = document.createElement('div');
         msgEl.textContent = msgData.message;
-        msgEl.className = "message " + (msgData.sender === 'me' ? 'right' : 'left');
+        msgEl.dataset.key = key;
+        msgEl.className = "message " + (msgData.sender === userName ? 'right' : 'left');
+
+        // iPhone style long press delete
+        if(msgData.sender === userName){
+          let pressTimer;
+          msgEl.addEventListener('mousedown', ()=>{
+            pressTimer = setTimeout(()=>{
+              if(confirm("Delete this message?")){
+                db.ref('chat/'+key).remove();
+              }
+            }, 800); // long press 0.8s
+          });
+          msgEl.addEventListener('mouseup', ()=>clearTimeout(pressTimer));
+          msgEl.addEventListener('mouseleave', ()=>clearTimeout(pressTimer));
+        }
+
         chatBox.appendChild(msgEl);
         chatBox.scrollTop = chatBox.scrollHeight;
       });
