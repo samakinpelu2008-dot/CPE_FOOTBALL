@@ -3,193 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Match</title>
-
+<title>Live Match & Chat</title>
 <style>
-body{
-  margin:0;
-  background:#f1f3f4;
-  font-family:Arial, sans-serif;
-  display:flex;
-  justify-content:center;
+body {
+  margin:0; padding:0; font-family: Arial, sans-serif; 
+  background: #e6f0ff; display:flex; flex-direction:column; align-items:center;
 }
-.app{
-  width:100%;
-  max-width:600px;
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
+.container {
+  width:95%; max-width:600px; margin-top:20px; display:flex; flex-direction:column; gap:12px;
 }
-
-/* SCOREBOARD */
-.scoreboard{
-  background:#fff;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
-.match-time{
-  text-align:center;
-  font-weight:bold;
-  color:#1a73e8;
-  font-size:16px;
-  margin-bottom:12px;
-}
-.teams{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.team{
-  width:120px;
-  text-align:center;
+/* Scoreboard */
+.scoreboard {
+  background:#fff; border-radius:12px; padding:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
   position:relative;
 }
-.team img{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  object-fit:contain;
+.match-status { text-align:center; font-size:14px; color:#007bff; font-weight:bold; margin-bottom:10px; }
+.match-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.team {
+  display:flex; flex-direction:column; align-items:center; width:90px; cursor:pointer; position:relative;
 }
-.team-name{
-  font-weight:bold;
+.team-logo { width:50px; height:50px; object-fit:contain; border-radius:50%; margin-bottom:4px; transition: transform 0.3s; }
+.team-name { font-weight:bold; font-size:14px; text-align:center; }
+.score { font-size:36px; font-weight:bold; text-align:center; width:100px; }
+.center-line { position:relative; height:2px; background:#e0e0e0; margin:12px 0; }
+.center-line::before { content:"⚽"; position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#fff; padding:0 6px;}
+.goal-scorers { display:flex; justify-content:space-between; font-size:12px; color:#555; margin-bottom:5px;}
+.goal-scorers div { width:90px; text-align:center; }
+/* Winner glow hexagon */
+.glow-hex {
+  position:absolute; top:0; left:50%; transform:translateX(-50%) scale(0);
+  width:70px; height:70px; background:rgba(0,123,255,0.2); clip-path:polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0% 50%);
+  border-radius:12px; transition: transform 0.5s ease;
+  z-index:-1;
+}
+.pop-logo { transform: scale(1.3); transition: transform 0.3s; }
+
+#fullDetailsBtn, #penaltyBtn {
+  padding:8px; border:none; border-radius:8px; background:#007bff; color:#fff; font-weight:bold; cursor:pointer; width:100%;
   margin-top:6px;
 }
-.score{
-  font-size:44px;
-  font-weight:bold;
-}
-.line{
-  margin:16px 0;
-  height:2px;
-  background:#ddd;
-  position:relative;
-}
-.line::after{
-  content:"⚽";
-  position:absolute;
-  left:50%;
-  top:-12px;
-  transform:translateX(-50%);
-  background:#fff;
-  padding:0 6px;
-}
-.scorers{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  color:#555;
-}
-.scorers div{
-  width:120px;
-}
 
-/* CHAT */
-.chat-card{
-  background:#fff;
-  border-radius:18px;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-  display:flex;
-  flex-direction:column;
-  height:360px;
-}
-.chat-box{
-  flex:1;
-  padding:12px;
-  overflow-y:auto;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.msg{
-  max-width:70%;
-  padding:10px 14px;
-  border-radius:20px;
-  font-size:14px;
-  animation:fadeIn .2s ease;
-}
-.me{
-  align-self:flex-end;
-  background:#1a73e8;
-  color:#fff;
-}
-.other{
-  align-self:flex-start;
-  background:#e4e6eb;
-}
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(4px)}
-  to{opacity:1}
-}
-.chat-input{
-  display:flex;
-  gap:8px;
-  padding:10px;
-  border-top:1px solid #ddd;
-}
-.chat-input input{
-  flex:1;
-  padding:10px 14px;
-  border-radius:20px;
-  border:1px solid #ccc;
-  font-size:15px;
-}
-.chat-input button{
-  background:#1a73e8;
-  color:#fff;
-  border:none;
-  padding:10px 16px;
-  border-radius:14px;
-  font-weight:bold;
-}
+/* Chat */
+.chat-container { background:#fff; border-radius:12px; height:300px; padding:10px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; }
+.message { max-width:70%; padding:8px 12px; border-radius:20px; word-wrap:break-word; }
+.message.right { background:#007bff; color:#fff; align-self:flex-end; }
+.message.left { background:#e0e0e0; align-self:flex-start; }
+
+.input-container { display:flex; gap:6px; margin-top:6px; align-items:center; }
+#chatInput { flex:1; border-radius:25px; padding:10px 15px; border:1px solid #ccc; outline:none; font-size:16px; }
+#sendBtn { border:none; background:#007bff; border-radius:8px; padding:10px 15px; color:#fff; font-weight:bold; cursor:pointer; }
 </style>
 </head>
-
 <body>
-<div class="app">
 
-<!-- SCOREBOARD -->
-<div class="scoreboard">
-  <div class="match-time" id="matchTime">Live 60'</div>
+<div class="container">
 
-  <div class="teams">
-    <div class="team">
-      <img id="homeLogo" src="">
-      <div class="team-name" id="homeName">HOME</div>
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <div class="match-status" id="matchStatus">Pre-match</div>
+    <div class="match-header">
+      <div class="team">
+        <div class="glow-hex" id="team1Glow"></div>
+        <img class="team-logo" id="team1Logo" src="" alt="Team 1">
+        <div class="team-name" id="team1Name">Team 1</div>
+      </div>
+      <div class="score" id="scoreBoard">0 : 0</div>
+      <div class="team">
+        <div class="glow-hex" id="team2Glow"></div>
+        <img class="team-logo" id="team2Logo" src="" alt="Team 2">
+        <div class="team-name" id="team2Name">Team 2</div>
+      </div>
     </div>
-
-    <div class="score" id="score">0 : 0</div>
-
-    <div class="team">
-      <img id="awayLogo" src="">
-      <div class="team-name" id="awayName">AWAY</div>
+    <div class="center-line"></div>
+    <div class="goal-scorers">
+      <div id="team1Scorers"></div>
+      <div id="team2Scorers"></div>
     </div>
   </div>
 
-  <div class="line"></div>
+  <!-- Full match details & Penalty -->
+  <button id="fullDetailsBtn">FULL MATCH DETAILS</button>
+  <button id="penaltyBtn">PENALTY SHOOTOUT</button>
 
-  <div class="scorers">
-    <div id="homeScorers"></div>
-    <div id="awayScorers" style="text-align:right"></div>
-  </div>
-</div>
-
-<!-- CHAT -->
-<div class="chat-card">
-  <div class="chat-box" id="chatBox"></div>
-  <div class="chat-input">
-    <input id="chatInput" placeholder="Type a message…">
+  <!-- Chat -->
+  <div class="chat-container" id="chatBox"></div>
+  <div class="input-container">
+    <input type="text" id="chatInput" placeholder="Type a message...">
     <button id="sendBtn">SEND</button>
   </div>
-</div>
 
 </div>
 
-<!-- FIREBASE -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
@@ -203,30 +110,109 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* CHAT */
-const chatBox=document.getElementById("chatBox");
-sendBtn.onclick=()=>{
-  if(!chatInput.value.trim())return;
-  db.ref("chat").push({
-    msg:chatInput.value,
-    me:true,
-    time:Date.now()
-  });
-  chatInput.value="";
+// DOM elements
+const chatBox = document.getElementById('chatBox');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const scoreBoard = document.getElementById('scoreBoard');
+const team1Glow = document.getElementById('team1Glow');
+const team2Glow = document.getElementById('team2Glow');
+const team1Logo = document.getElementById('team1Logo');
+const team2Logo = document.getElementById('team2Logo');
+const team1Name = document.getElementById('team1Name');
+const team2Name = document.getElementById('team2Name');
+const team1Scorers = document.getElementById('team1Scorers');
+const team2Scorers = document.getElementById('team2Scorers');
+const matchStatus = document.getElementById('matchStatus');
+
+// Firebase references
+const chatRef = db.ref('chat');
+const scoresRef = db.ref('scores');
+const winnerRef = db.ref('winnerGlow');
+const penaltyRef = db.ref('penalty');
+const matchRef = db.ref('matchStatus');
+
+// --- CHAT ---
+sendBtn.addEventListener('click', ()=>{
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  chatRef.push({ message: msg, sender: 'me', timestamp: Date.now() });
+  chatInput.value = '';
+});
+chatInput.addEventListener('keypress', e => { if(e.key==='Enter') sendBtn.click(); });
+
+chatRef.on('value', snap=>{
+  chatBox.innerHTML='';
+  const data = snap.val();
+  if(data){
+    Object.keys(data).forEach(k=>{
+      const m = data[k];
+      const div = document.createElement('div');
+      div.textContent = m.message;
+      div.className="message "+(m.sender==='me'?'right':'left');
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  }
+});
+
+// --- FULL MATCH DETAILS ---
+document.getElementById('fullDetailsBtn').addEventListener('click', ()=>{
+  alert("Full match timeline and events would appear here.");
+});
+
+// --- WINNER GLOW ---
+function showFullTimeWinner(team){
+  if(team===1){
+    team1Glow.style.transform='translateX(-50%) scale(1)';
+    team1Logo.classList.add('pop-logo');
+    team2Glow.style.transform='translateX(-50%) scale(0)';
+    team2Logo.classList.remove('pop-logo');
+  }else if(team===2){
+    team2Glow.style.transform='translateX(-50%) scale(1)';
+    team2Logo.classList.add('pop-logo');
+    team1Glow.style.transform='translateX(-50%) scale(0)';
+    team1Logo.classList.remove('pop-logo');
+  }else{
+    team1Glow.style.transform='translateX(-50%) scale(1)';
+    team1Logo.classList.add('pop-logo');
+    team2Glow.style.transform='translateX(-50%) scale(1)';
+    team2Logo.classList.add('pop-logo');
+  }
+}
+
+// --- FIREBASE LISTENERS ---
+// Scores
+scoresRef.on('value', snap=>{
+  const s = snap.val();
+  if(!s) return;
+  scoreBoard.textContent=`${s.team1} : ${s.team2}`;
+});
+
+// Winner glow
+winnerRef.on('value', snap=>{
+  const w = snap.val(); if(!w) return;
+  showFullTimeWinner(w);
+});
+
+// Penalty updates
+penaltyRef.on('value', snap=>{
+  const p = snap.val(); if(!p) return;
+  scoreBoard.textContent=`${p.team1} : ${p.team2}`;
+});
+
+// --- PENALTY BUTTON ---
+document.getElementById('penaltyBtn').onclick = ()=>{
+  const team1Pen = parseInt(prompt("Team 1 penalty goals:"))||0;
+  const team2Pen = parseInt(prompt("Team 2 penalty goals:"))||0;
+  penaltyRef.set({ team1: team1Pen, team2: team2Pen });
+  let winner=0;
+  if(team1Pen>team2Pen) winner=1;
+  else if(team2Pen>team1Pen) winner=2;
+  else winner=3;
+  winnerRef.set(winner);
 };
 
-db.ref("chat").on("value",snap=>{
-  chatBox.innerHTML="";
-  snap.forEach(s=>{
-    const d=s.val();
-    const div=document.createElement("div");
-    div.className="msg "+(d.me?"me":"other");
-    div.textContent=d.msg;
-    chatBox.appendChild(div);
-  });
-  chatBox.scrollTop=chatBox.scrollHeight;
-});
 </script>
-
 </body>
 </html>
