@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple Chat</title>
+<title>Simple Chat (Realtime DB)</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
 .container { width:90%; max-width:400px; display:flex; flex-direction:column; gap:10px; }
@@ -26,48 +26,36 @@ body { font-family: Arial, sans-serif; background:#f0f2f5; display:flex; justify
   </div>
 </div>
 
-<!-- Firebase CDN -->
-<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
-  // Initialize Firebase
+  // Firebase config
   const firebaseConfig = {
-    apiKey: "AIzaSyBIUCbVIqFWIvas2DQI77TRdNEg4xvnkS8",
-    authDomain: "cpefootball-934ed.firebaseapp.com",
-    projectId: "cpefootball-934ed",
-    storageBucket: "cpefootball-934ed.firebasestorage.app",
-    messagingSenderId: "314240530293",
-    appId: "1:314240530293:web:1c89774cda136f4661c53c"
+    apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
+    authDomain: "fresherscuplive.firebaseapp.com",
+    databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
+    projectId: "fresherscuplive",
+    storageBucket: "fresherscuplive.firebasestorage.app",
+    messagingSenderId: "502451588704",
+    appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
   };
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  const db = firebase.database();
 
   const chatBox = document.getElementById('chatBox');
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
 
-  // Listen for new messages
-  db.collection('chat').orderBy('timestamp')
-    .onSnapshot(snapshot => {
-      chatBox.innerHTML = '';
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const msgEl = document.createElement('div');
-        msgEl.textContent = data.message;
-        msgEl.className = "message " + (data.sender==='me'?'right':'left');
-        chatBox.appendChild(msgEl);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
-    });
-
   // Send message
   sendBtn.addEventListener('click', () => {
     const msg = chatInput.value.trim();
     if(!msg) return;
-    db.collection('chat').add({
+    const newMsgRef = db.ref('chat').push();
+    newMsgRef.set({
       message: msg,
-      timestamp: Date.now(),
-      sender: 'me'  // you can change 'me' to any name for your friends
+      sender: 'me', // you can change 'me' to your name
+      timestamp: Date.now()
     });
     chatInput.value = '';
   });
@@ -75,6 +63,22 @@ body { font-family: Arial, sans-serif; background:#f0f2f5; display:flex; justify
   // Enter key sends message
   chatInput.addEventListener('keypress', e => {
     if(e.key === 'Enter') sendBtn.click();
+  });
+
+  // Listen for new messages
+  db.ref('chat').on('value', snapshot => {
+    chatBox.innerHTML = '';
+    const data = snapshot.val();
+    if(data){
+      Object.keys(data).forEach(key => {
+        const msgData = data[key];
+        const msgEl = document.createElement('div');
+        msgEl.textContent = msgData.message;
+        msgEl.className = "message " + (msgData.sender === 'me' ? 'right' : 'left');
+        chatBox.appendChild(msgEl);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    }
   });
 </script>
 
