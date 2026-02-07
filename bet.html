@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bet</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 15px;
+  background:#fff;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.balance{
+  background:#0a7cff;
+  color:#fff;
+  padding:6px 10px;
+  border-radius:6px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+/* ===== SCOREBOARD ===== */
+.scorecard{
+  background:#fff;
+  margin:15px auto;
+  width:40%;
+  min-width:300px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+  padding:15px;
+  text-align:center;
+}
+
+.teams-row{
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+
+.team{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.team img{
+  width:45px;
+  height:45px;
+}
+
+.team-name{
+  font-size:14px;
+  margin-top:4px;
+}
+
+.score{
+  font-size:30px;
+  font-weight:bold;
+}
+
+/* ===== BET MARKETS ===== */
+.market{
+  background:#fff;
+  margin:15px;
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.market-title{
+  padding:10px;
+  font-weight:bold;
+  border-bottom:1px solid #eee;
+}
+
+.options{
+  display:flex;
+  flex-wrap:wrap;
+}
+
+.option{
+  flex:1;
+  min-width:33%;
+  padding:12px;
+  text-align:center;
+  border-right:1px solid #eee;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.option:last-child{
+  border-right:none;
+}
+
+.option:hover{
+  background:#e6f2ff;
+}
+
+/* ===== BETSLIP ===== */
+.betslip{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.2);
+  padding:10px;
+  display:none;
+}
+
+.betslip-item{
+  font-size:14px;
+  margin-bottom:8px;
+}
+
+.place-btn{
+  width:100%;
+  padding:10px;
+  background:#0a7cff;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP -->
+<div class="top-bar">
+  <strong>Bet</strong>
+  <div class="balance" id="balance">NGN 10,000</div>
+</div>
+
+<!-- SCOREBOARD -->
+<div class="scorecard">
+  <div class="teams-row">
+    <div class="team">
+      <img src="https://i.ibb.co/1fgXH8TQ/file-0000000097cc71f48084d870a69383b2.png">
+      <div class="team-name">CPE</div>
+    </div>
+
+    <div class="score">0 - 0</div>
+
+    <div class="team">
+      <img src="https://i.ibb.co/93cfCTfC/file-00000000940871f4bce254a220506af2.png">
+      <div class="team-name">BMG</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1X2 -->
+<div class="market">
+  <div class="market-title">1X2</div>
+  <div class="options">
+    <div class="option" onclick="addBet('CPE Win',2.10)">CPE<br>2.10</div>
+    <div class="option" onclick="addBet('Draw',3.00)">Draw<br>3.00</div>
+    <div class="option" onclick="addBet('BMG Win',2.50)">BMG<br>2.50</div>
+  </div>
+</div>
+
+<!-- OVER / UNDER -->
+<div class="market">
+  <div class="market-title">Over / Under</div>
+  <div class="options">
+    <div class="option" onclick="addBet('Over 0.5',1.30)">O 0.5<br>1.30</div>
+    <div class="option" onclick="addBet('Under 0.5',3.50)">U 0.5<br>3.50</div>
+    <div class="option" onclick="addBet('Over 1.5',2.10)">O 1.5<br>2.10</div>
+    <div class="option" onclick="addBet('Under 1.5',1.70)">U 1.5<br>1.70</div>
+  </div>
+</div>
+
+<!-- GG / NG -->
+<div class="market">
+  <div class="market-title">GG / NG</div>
+  <div class="options">
+    <div class="option" onclick="addBet('GG',1.90)">GG<br>1.90</div>
+    <div class="option" onclick="addBet('NG',1.80)">NG<br>1.80</div>
+  </div>
+</div>
+
+<!-- BETSLIP -->
+<div class="betslip" id="betslip">
+  <div class="betslip-item" id="betInfo"></div>
+  <button class="place-btn">Place Bet</button>
+</div>
+
+<script>
+let currentBet = null;
+
+function addBet(name, odds){
+  currentBet = {name, odds};
+  document.getElementById('betInfo').innerText =
+    name + " @ " + odds;
+  document.getElementById('betslip').style.display = "block";
+}
+</script>
+
+</body>
+</html>
