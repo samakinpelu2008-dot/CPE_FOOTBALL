@@ -3,32 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bet</title>
-
+<title>Bet - Football.com Style</title>
 <style>
-body{
+body {
   margin:0;
   font-family: Arial, sans-serif;
   background:#f2f2f2;
-}
-
-/* ===== TOP BAR ===== */
-.top-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 15px;
-  background:#fff;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-.balance{
-  background:#0a7cff;
-  color:#fff;
-  padding:6px 10px;
-  border-radius:6px;
-  font-size:14px;
-  font-weight:bold;
 }
 
 /* ===== SCOREBOARD ===== */
@@ -36,7 +16,7 @@ body{
   background:#fff;
   margin:15px auto;
   width:40%;
-  min-width:300px;
+  min-width:280px;
   border-radius:12px;
   box-shadow:0 2px 10px rgba(0,0,0,0.1);
   padding:15px;
@@ -47,6 +27,7 @@ body{
   display:flex;
   justify-content:space-around;
   align-items:center;
+  margin-bottom:5px;
 }
 
 .team{
@@ -56,67 +37,91 @@ body{
 }
 
 .team img{
-  width:45px;
-  height:45px;
+  width:50px;
+  height:50px;
+  margin-bottom:5px;
 }
 
 .team-name{
   font-size:14px;
-  margin-top:4px;
+  font-weight:bold;
+  color:#222;
 }
 
 .score{
-  font-size:30px;
+  font-size:32px;
   font-weight:bold;
 }
 
-/* ===== BET MARKETS ===== */
+.match-time{
+  font-size:14px;
+  color:#666;
+  margin-bottom:10px;
+  font-weight:500;
+}
+
+.divider{
+  height:1px;
+  background:#e0e0e0;
+  margin:5px 0 10px 0;
+}
+
+/* ===== BETTING LAYOUT (football.com style) ===== */
+.betting-wrapper{
+  width:80%;
+  max-width:800px;
+  margin:0 auto 60px;
+}
+
 .market{
   background:#fff;
-  margin:15px;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  border-radius:8px;
+  margin-bottom:15px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
-.market-title{
-  padding:10px;
+.market-header{
+  padding:10px 15px;
   font-weight:bold;
+  font-size:14px;
   border-bottom:1px solid #eee;
+  background:#f9f9f9;
 }
 
-.options{
+.market-body{
   display:flex;
   flex-wrap:wrap;
 }
 
 .option{
   flex:1;
-  min-width:33%;
-  padding:12px;
+  min-width:100px;
   text-align:center;
+  padding:15px 10px;
   border-right:1px solid #eee;
   border-bottom:1px solid #eee;
   cursor:pointer;
   font-weight:bold;
-}
-
-.option:last-child{
-  border-right:none;
+  transition: background 0.2s;
 }
 
 .option:hover{
   background:#e6f2ff;
 }
 
-/* ===== BETSLIP ===== */
+.option:last-child{
+  border-right:none;
+}
+
+/* BETSLIP */
 .betslip{
   position:fixed;
   bottom:0;
   left:0;
   right:0;
   background:#fff;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.2);
   padding:10px;
+  box-shadow:0 -2px 8px rgba(0,0,0,0.2);
   display:none;
 }
 
@@ -134,19 +139,19 @@ body{
   border-radius:6px;
   font-size:16px;
 }
+
+@media(max-width:768px){
+  .scorecard{width:90%;}
+  .betting-wrapper{width:95%;}
+  .option{min-width:50%;}
+}
 </style>
 </head>
-
 <body>
-
-<!-- TOP -->
-<div class="top-bar">
-  <strong>Bet</strong>
-  <div class="balance" id="balance">NGN 10,000</div>
-</div>
 
 <!-- SCOREBOARD -->
 <div class="scorecard">
+  <div class="match-time">19'</div>
   <div class="teams-row">
     <div class="team">
       <img src="https://i.ibb.co/1fgXH8TQ/file-0000000097cc71f48084d870a69383b2.png">
@@ -160,54 +165,49 @@ body{
       <div class="team-name">BMG</div>
     </div>
   </div>
+  <div class="divider"></div>
 </div>
 
-<!-- 1X2 -->
-<div class="market">
-  <div class="market-title">1X2</div>
-  <div class="options">
-    <div class="option" onclick="addBet('CPE Win',2.10)">CPE<br>2.10</div>
-    <div class="option" onclick="addBet('Draw',3.00)">Draw<br>3.00</div>
-    <div class="option" onclick="addBet('BMG Win',2.50)">BMG<br>2.50</div>
-  </div>
-</div>
+<!-- BETTING MARKETS -->
+<div class="betting-wrapper">
 
-<!-- OVER / UNDER -->
-<div class="market">
-  <div class="market-title">Over / Under</div>
-  <div class="options">
-    <div class="option" onclick="addBet('Over 0.5',1.30)">O 0.5<br>1.30</div>
-    <div class="option" onclick="addBet('Under 0.5',3.50)">U 0.5<br>3.50</div>
-    <div class="option" onclick="addBet('Over 1.5',2.10)">O 1.5<br>2.10</div>
-    <div class="option" onclick="addBet('Under 1.5',1.70)">U 1.5<br>1.70</div>
+  <!-- 1X2 -->
+  <div class="market">
+    <div class="market-header">1X2</div>
+    <div class="market-body">
+      <div class="option">CPE<br>2.10</div>
+      <div class="option">Draw<br>3.00</div>
+      <div class="option">BMG<br>2.50</div>
+    </div>
   </div>
-</div>
 
-<!-- GG / NG -->
-<div class="market">
-  <div class="market-title">GG / NG</div>
-  <div class="options">
-    <div class="option" onclick="addBet('GG',1.90)">GG<br>1.90</div>
-    <div class="option" onclick="addBet('NG',1.80)">NG<br>1.80</div>
+  <!-- Over/Under -->
+  <div class="market">
+    <div class="market-header">Over / Under</div>
+    <div class="market-body">
+      <div class="option">O 0.5<br>1.30</div>
+      <div class="option">U 0.5<br>3.50</div>
+      <div class="option">O 1.5<br>2.10</div>
+      <div class="option">U 1.5<br>1.70</div>
+    </div>
   </div>
+
+  <!-- GG / NG -->
+  <div class="market">
+    <div class="market-header">GG / NG</div>
+    <div class="market-body">
+      <div class="option">GG<br>1.90</div>
+      <div class="option">NG<br>1.80</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- BETSLIP -->
-<div class="betslip" id="betslip">
-  <div class="betslip-item" id="betInfo"></div>
+<div class="betslip">
+  <div class="betslip-item" id="betInfo">Your bet info here</div>
   <button class="place-btn">Place Bet</button>
 </div>
-
-<script>
-let currentBet = null;
-
-function addBet(name, odds){
-  currentBet = {name, odds};
-  document.getElementById('betInfo').innerText =
-    name + " @ " + odds;
-  document.getElementById('betslip').style.display = "block";
-}
-</script>
 
 </body>
 </html>
