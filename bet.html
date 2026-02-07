@@ -3,17 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bet - Football.com Style</title>
+<title>Betting Page</title>
 <style>
 body {
   margin:0;
   font-family: Arial, sans-serif;
-  background:#f2f2f2;
+  background:#1e1e1e;
+  color:#fff;
 }
 
 /* ===== SCOREBOARD ===== */
 .scorecard{
   background:#fff;
+  color:#000;
   margin:15px auto;
   width:40%;
   min-width:280px;
@@ -63,54 +65,108 @@ body {
 .divider{
   height:1px;
   background:#e0e0e0;
-  margin:5px 0 10px 0;
+  margin:10px 0;
 }
 
-/* ===== BETTING LAYOUT (football.com style) ===== */
+/* ===== BETTING LAYOUT ===== */
 .betting-wrapper{
   width:80%;
   max-width:800px;
   margin:0 auto 60px;
 }
 
+/* Market card */
 .market{
-  background:#fff;
-  border-radius:8px;
-  margin-bottom:15px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom:20px;
 }
 
-.market-header{
-  padding:10px 15px;
+.market-title{
+  font-size:16px;
   font-weight:bold;
-  font-size:14px;
-  border-bottom:1px solid #eee;
-  background:#f9f9f9;
+  margin-bottom:8px;
+  border-bottom:1px solid #444;
+  padding-bottom:5px;
 }
 
-.market-body{
+/* 1X2 */
+.one-x-two{
   display:flex;
-  flex-wrap:wrap;
+  justify-content:space-between;
 }
 
-.option{
+.odd-box{
   flex:1;
-  min-width:100px;
+  margin:0 5px;
+  background:#2c2c2c;
   text-align:center;
-  padding:15px 10px;
-  border-right:1px solid #eee;
-  border-bottom:1px solid #eee;
-  cursor:pointer;
+  padding:15px 0;
+  border-radius:8px;
   font-weight:bold;
-  transition: background 0.2s;
+  font-size:18px;
+  cursor:pointer;
+  transition:0.2s;
 }
 
-.option:hover{
-  background:#e6f2ff;
+.odd-box:hover{
+  background:#444;
 }
 
-.option:last-child{
-  border-right:none;
+/* Over/Under table */
+.over-under{
+  width:100%;
+  margin-top:10px;
+  border-collapse: collapse;
+}
+
+.over-under th,
+.over-under td{
+  border:1px solid #444;
+  padding:10px;
+  text-align:center;
+}
+
+.over-under th{
+  font-weight:bold;
+}
+
+.over-under td{
+  background:#2c2c2c;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.2s;
+}
+
+.over-under td:hover{
+  background:#444;
+}
+
+/* GG/NG table */
+.gg-ng{
+  width:100%;
+  margin-top:10px;
+  border-collapse: collapse;
+}
+
+.gg-ng th,
+.gg-ng td{
+  border:1px solid #444;
+  padding:10px;
+  text-align:center;
+}
+
+.gg-ng th{
+  font-weight:bold;
+}
+
+.gg-ng td{
+  background:#2c2c2c;
+  cursor:pointer;
+  font-size:16px;
+  transition:0.2s;
+}
+
+.gg-ng td:hover{
+  background:#444;
 }
 
 /* BETSLIP */
@@ -119,15 +175,11 @@ body {
   bottom:0;
   left:0;
   right:0;
-  background:#fff;
+  background:#2c2c2c;
   padding:10px;
-  box-shadow:0 -2px 8px rgba(0,0,0,0.2);
   display:none;
-}
-
-.betslip-item{
-  font-size:14px;
-  margin-bottom:8px;
+  color:#fff;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.5);
 }
 
 .place-btn{
@@ -138,12 +190,6 @@ body {
   border:none;
   border-radius:6px;
   font-size:16px;
-}
-
-@media(max-width:768px){
-  .scorecard{width:90%;}
-  .betting-wrapper{width:95%;}
-  .option{min-width:50%;}
 }
 </style>
 </head>
@@ -168,37 +214,50 @@ body {
   <div class="divider"></div>
 </div>
 
-<!-- BETTING MARKETS -->
 <div class="betting-wrapper">
 
   <!-- 1X2 -->
   <div class="market">
-    <div class="market-header">1X2</div>
-    <div class="market-body">
-      <div class="option">CPE<br>2.10</div>
-      <div class="option">Draw<br>3.00</div>
-      <div class="option">BMG<br>2.50</div>
+    <div class="market-title">1X2</div>
+    <div class="one-x-two">
+      <div class="odd-box">💵💵<br>CPE 2.10</div>
+      <div class="odd-box">💴💴<br>Draw 3.00</div>
+      <div class="odd-box">💶💶<br>BMG 2.50</div>
     </div>
   </div>
 
-  <!-- Over/Under -->
+  <!-- OVER/UNDER -->
   <div class="market">
-    <div class="market-header">Over / Under</div>
-    <div class="market-body">
-      <div class="option">O 0.5<br>1.30</div>
-      <div class="option">U 0.5<br>3.50</div>
-      <div class="option">O 1.5<br>2.10</div>
-      <div class="option">U 1.5<br>1.70</div>
-    </div>
+    <div class="market-title">OVER / UNDER</div>
+    <table class="over-under">
+      <tr>
+        <th>Goal</th>
+        <th>OVER</th>
+        <th>UNDER</th>
+      </tr>
+      <tr><td>0.5</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>1.5</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>2.5</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>3.5</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>4.5</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>5.5</td><td>💶💶</td><td>💴💴</td></tr>
+    </table>
   </div>
 
-  <!-- GG / NG -->
+  <!-- GG/NG -->
   <div class="market">
-    <div class="market-header">GG / NG</div>
-    <div class="market-body">
-      <div class="option">GG<br>1.90</div>
-      <div class="option">NG<br>1.80</div>
-    </div>
+    <div class="market-title">GG / NG</div>
+    <table class="gg-ng">
+      <tr>
+        <th>Goal+</th>
+        <th>GG</th>
+        <th>NG</th>
+      </tr>
+      <tr><td>1+</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>2+</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>3+</td><td>💶💶</td><td>💴💴</td></tr>
+      <tr><td>4+</td><td>💶💶</td><td>💴💴</td></tr>
+    </table>
   </div>
 
 </div>
