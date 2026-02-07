@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Bets</title>
+<style>
+body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; }
+.balance{ position:fixed; top:10px; right:10px; background:#0a7cff; padding:8px 12px; border-radius:6px; font-weight:bold; z-index:1000; }
+.bets-container{ width:80%; max-width:800px; margin:80px auto 20px; }
+.betslip-item{ background:#383838; padding:12px; border-radius:6px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+.cashout-btn{ background:#ff9800; border:none; border-radius:5px; padding:5px 10px; cursor:pointer; color:#fff; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="balance" id="balance">Balance: NGN 10000</div>
+
+<div class="bets-container" id="betsContainer"></div>
+
+<script>
+// --- LOAD BALANCE & BITS ---
+if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
+document.getElementById("balance").innerText="Balance: NGN "+localStorage.getItem("balance");
+let activeBets = JSON.parse(localStorage.getItem("activeBets")||"[]");
+
+function updateBets(){
+    const container = document.getElementById("betsContainer");
+    container.innerHTML="";
+    activeBets.forEach((b,i)=>{
+        const div = document.createElement("div");
+        div.className="betslip-item";
+        div.innerHTML = `<span>${b.team} @ ${b.odd} | Stake: NGN ${b.stake}</span>
+                         <button class="cashout-btn" onclick="cashout(${i})">Cashout</button>`;
+        container.appendChild(div);
+    });
+}
+
+function cashout(index){
+    const bet = activeBets[index];
+    let balance = parseInt(localStorage.getItem("balance"));
+    balance += Math.floor(bet.stake*parseFloat(bet.odd));
+    localStorage.setItem("balance",balance);
+    document.getElementById("balance").innerText="Balance: NGN "+balance;
+    activeBets.splice(index,1);
+    localStorage.setItem("activeBets",JSON.stringify(activeBets));
+    updateBets();
+    alert(`Cashout successful! NGN ${Math.floor(bet.stake*parseFloat(bet.odd))}`);
+}
+
+updateBets();
+</script>
+</body>
+</html>
