@@ -3,592 +3,285 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Freshers Cup – CPE vs AGE</title>
+<title>Live Match</title>
+
 <style>
-/* ----------------- Body & Card ----------------- */
+/* ===== GENERAL ===== */
 body {
-  margin:0;
-  font-family: sans-serif;
-  background:#0b8f2f;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  min-height:100vh;
-  padding:20px;
-  box-sizing:border-box;
-  position: relative;
-}
-.card {
-  background:#1e1e2f;
-  width:100%;
-  max-width:700px;
-  border-radius:20px;
-  padding:25px;
-  box-shadow:0 15px 35px rgba(0,0,0,0.5);
+  margin: 0;
+  padding: 15px;
+  font-family: Arial, sans-serif;
+  background: #f6f7fb;
 }
 
-/* ----------------- Teams ----------------- */
-.team-row {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-.team-box {
-  text-align:center;
-  flex:1;
-  transition: transform 0.3s;
-}
-.team-box img {
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  border:3px solid #fff;
-  margin-bottom:10px;
-}
-.team-box h2 {
-  margin:0;
-  font-size:22px;
-}
-.vs {
-  font-size:32px;
-  font-weight:700;
-  color:#ffdd00;
-  margin:0 10px;
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
 }
 
-/* ----------------- Score & Info ----------------- */
+button:active {
+  transform: scale(0.96);
+}
+
+/* ===== SCOREBOARD ===== */
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.team {
+  text-align: center;
+}
+
+.team img {
+  width: 70px;
+}
+
+.team-name {
+  font-weight: bold;
+  margin-top: 6px;
+}
+
 .score {
-  font-size:48px;
-  font-weight:bold;
-  color:#00ffcc;
-  margin-top:5px;
-}
-.info-box {
-  background: rgba(255,255,255,0.1);
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:20px;
+  font-size: 30px;
+  font-weight: bold;
 }
 
-/* ----------------- Goals & Commentary ----------------- */
-.goal-box, .commentary {
-  background: rgba(255,255,255,0.1);
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-.commentary {
-  max-height:150px;
-  overflow-y:auto;
-}
-.commentary::-webkit-scrollbar {
-  width:6px;
-}
-.commentary::-webkit-scrollbar-thumb {
-  background:#ffdd00;
-  border-radius:3px;
+/* GOAL ANIMATION (1.5s) */
+.goal-animate {
+  animation: goalPop 1.5s ease;
 }
 
-/* ----------------- Fan Section ----------------- */
-.fan-section {
-  background: rgba(255,255,255,0.05);
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:20px;
-}
-.fan-section input {
-  width:70%;
-  padding:6px;
-  border-radius:8px;
-  border:none;
-  margin-right:5px;
-}
-.fan-section button {
-  padding:6px 10px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  background:#ffdd00;
-  color:#000;
-}
-#fanComments p {
-  background: rgba(255,255,255,0.1);
-  padding:8px;
-  border-radius:8px;
-  margin:4px 0;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.deleteBtn {
-  margin-left:10px;
-  color:red;
-  cursor:pointer;
-  font-weight:bold;
+@keyframes goalPop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.3) translateY(-6px); }
+  60%  { transform: scale(0.95) translateY(4px); }
+  100% { transform: scale(1); }
 }
 
-/* ----------------- Admin Panel ----------------- */
-.admin-btn {
-  background:#ffdd00;
-  color:#000;
-  border:none;
-  padding:8px 15px;
-  border-radius:12px;
-  cursor:pointer;
-  margin-bottom:10px;
-}
-#adminPanel {
-  display:none;
-  margin-top:10px;
-  background: rgba(255,255,255,0.15);
-  padding:10px;
-  border-radius:12px;
-}
-#adminPanel input, #adminPanel select, #adminPanel button {
-  margin:5px 0;
-  padding:6px;
-  border-radius:8px;
-  border:none;
+/* ===== TIMER ===== */
+.timer-box {
+  margin: 15px 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
 }
 
-/* ----------------- Timer & Live Bar ----------------- */
-#timer {
-  font-size:28px;
-  font-weight:700;
-  text-align:center;
-  margin-bottom:10px;
-  color: #00ff00;
-  text-shadow:0 0 8px #00ff00;
-}
-#liveBar {
-  height:6px;
-  width:20%;
-  background:#00ff00;
-  border-radius:3px;
-  margin:0 auto 10px auto;
-  display:none;
-  animation: liveMove 3s infinite ease-in-out;
-}
-@keyframes liveMove{
-  0% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
-  25% { transform: translateX(0%) scaleX(1); opacity: 1; }
-  50% { transform: translateX(100%) scaleX(0.5); opacity: 0; }
-  75% { transform: translateX(0%) scaleX(1); opacity: 1; }
-  100% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
+/* ===== CONTROLS ===== */
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
 }
 
-/* ----------------- Hearts ----------------- */
-.floatingHeart {
-  position:absolute;
-  font-size:24px;
-  animation: floatUp 2.0s ease-out forwards;
-  pointer-events:none;
-  z-index:9999;
+/* ===== COMMENTS ===== */
+.comments-box {
+  background: white;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
+
+.comments-box h3 {
+  margin-top: 0;
+}
+
+.comment-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.comment {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.delete {
+  color: red;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* ===== HEARTS ===== */
+.heart {
+  position: fixed;
+  font-size: 22px;
+  animation: floatUp 1.5s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
 @keyframes floatUp {
-  0% { opacity:1; transform: translateY(0) scale(1); }
-  100% { opacity:0; transform: translateY(-500px) scale(1.5); }
-}
-#loveButton {
-  position:fixed;
-  bottom:30px;
-  right:30px;
-  font-size:40px;
-  cursor:pointer;
-  user-select:none;
-}
-#loveCount {
-  position:fixed;
-  bottom:80px;
-  right:30px;
-  font-size:20px;
-  color:#fff;
-}
-
-/* ----------------- Goal Animation ----------------- */
-@keyframes goalAnimate {
-  0% { transform: scale(1) rotate(0deg); }
-  30% { transform: scale(1.3) rotate(-5deg); }
-  60% { transform: scale(0.95) rotate(5deg); }
-  100% { transform: scale(1) rotate(0deg); }
-}
-.score-animate {
-  animation: goalAnimate 1.5s ease-in-out;
-}
-
-/* ----------------- Banner Placeholder ----------------- */
-#bannerAd {
-  width:100%;
-  max-width:728px;
-  height:90px;
-  margin:20px auto 0 auto;
-  background:#ffdd00;
-  color:#000;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:12px;
-  font-size:18px;
-  font-weight:bold;
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-40px); }
 }
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <div id="liveBar"></div>
-  <div id="timer">0</div>
-
-  <div class="team-row">
-    <div class="team-box" id="teamCPE">
-      <img src="https://i.ibb.co/XfTKYHJ0/IMG-20251009-WA0089.jpg" alt="CPE Logo">
-      <h2>CPE</h2>
-    </div>
-    <div class="vs" id="vsDisplay">VS</div>
-    <div class="team-box" id="teamAGE">
-      <img src="https://i.ibb.co/nMNvSsNc/file-00000000824c722fb5b7a2e7612c6127.png" alt="AGE Logo">
-      <h2>AGE</h2>
-    </div>
+<!-- SCOREBOARD -->
+<div class="scoreboard">
+  <div class="team" id="teamA">
+    <img src="https://via.placeholder.com/100" alt="">
+    <div class="team-name">TEAM A</div>
+    <div class="score" id="scoreA">0</div>
   </div>
 
-  <div class="info-box">
-    <p><strong>Competition:</strong> Freshers Cup</p>
-    <p><strong>Stage:</strong> ROUND OF 16</p>
-    <p><strong>Venue:</strong> Lico Field</p>
-    <p><strong>Location:</strong> LAUTECH Ogbomosho</p>
-    <p><strong>Weather:</strong> Sunny</p>
-    <p><strong>Kick Off:</strong> 10:00 AM</p>
-  </div>
-
-  <div class="goal-box">
-    <h3>Goal Scorers</h3>
-    <div id="goals">None yet</div>
-  </div>
-
-  <div class="commentary">
-    <h3>Live Updates</h3>
-    <div id="liveComments"></div>
-  </div>
-
-  <div class="fan-section">
-    <h3>Fan Comments ❤️</h3>
-    <input type="text" id="fanComment" placeholder="Write your comment..." />
-    <button onclick="addFanComment()">Send</button>
-    <div id="fanComments"></div>
-  </div>
-
-  <button class="admin-btn" id="adminBtn">Show Admin Controls</button>
-  <div id="adminPanel">
-    <label>Stage:</label>
-    <select id="stageSelect">
-      <option value="PRE">Pre-match</option>
-      <option value="FH">First Half</option>
-      <option value="HT">Half-time</option>
-      <option value="SH">Second Half</option>
-      <option value="FT">Full-time</option>
-    </select>
-    <button onclick="changeStage()">Update Stage</button><br>
-
-    <label>CPE Score:</label><input type="number" id="cpeScore" min="0">
-    <button onclick="setScore('CPE')">Update</button><br>
-
-    <label>AGE Score:</label><input type="number" id="ageScore" min="0">
-    <button onclick="setScore('AGE')">Update</button><br>
-
-    <label>Goal Scorer:</label><input type="text" id="goalPlayer">
-    <button onclick="addGoal()">Add Goal</button>
-    <button onclick="deleteAllGoals()">Delete All Goals</button><br>
-
-    <label>Commentary:</label><input type="text" id="commentText">
-    <button onclick="addCommentary()">Add Comment</button>
-    <button onclick="deleteAllComments()">Delete All Comments</button>
+  <div class="team" id="teamB">
+    <img src="https://via.placeholder.com/100" alt="">
+    <div class="team-name">TEAM B</div>
+    <div class="score" id="scoreB">0</div>
   </div>
 </div>
 
-<div id="loveButton">💚</div>
-<div id="loveCount">0</div>
+<!-- TIMER -->
+<div class="timer-box">
+  ⏱️ <span id="timer">00:00</span>
+</div>
 
-<!-- Banner Ad Placeholder -->
-<div id="bannerAd">Banner Ad Placeholder</div>
+<!-- CONTROLS -->
+<div class="controls">
+  <button onclick="goal('A')">Goal Team A</button>
+  <button onclick="goal('B')">Goal Team B</button>
+  <button onclick="startTimer()">Start Timer</button>
+  <button onclick="pauseTimer()">Pause Timer</button>
+</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<!-- COMMENTS -->
+<div class="comments-box">
+  <h3>Fan Comments</h3>
+
+  <div class="comment-input">
+    <input id="commentInput" placeholder="Say something...">
+    <button onclick="postComment()">Post</button>
+  </div>
+
+  <div id="comments"></div>
+</div>
+
 <script>
-/* ---------------- Firebase Config ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyA2AScPQkOE632znM9vvCahijtnronS3jU",
-  authDomain: "fresherscuplive.firebaseapp.com",
-  databaseURL: "https://fresherscuplive-default-rtdb.firebaseio.com",
-  projectId: "fresherscuplive",
-  storageBucket: "fresherscuplive.firebasestorage.app",
-  messagingSenderId: "502451588704",
-  appId: "1:502451588704:web:56bd4d7fc98814cddfbd05"
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-
-/* ---------------- References ---------------- */
-const matchRef = database.ref("match");
-const fanRef = database.ref("fanComments");
-const loveRef = database.ref("loveCount");
-const loveActionsRef = database.ref("loveActions");
-
-/* ---------------- Admin Password ---------------- */
-const adminPassword = "CPE2025";
-document.getElementById("adminBtn").addEventListener("click", ()=>{
-  let pass = prompt("Enter admin password:");
-  if(pass===adminPassword){
-    document.getElementById("adminPanel").style.display="block";
-    document.getElementById("adminBtn").style.display="none";
-  } else alert("Wrong password!");
-});
-
-/* ---------------- Timer ---------------- */
-let timerInterval=null;
-
-/* ---------------- Fan Local Storage ID ---------------- */
-let fanId = localStorage.getItem("fanId");
-if(!fanId){
-  fanId = 'fan_'+Date.now()+'_'+Math.floor(Math.random()*1000);
-  localStorage.setItem("fanId", fanId);
+/* ===== USER ID (LOCAL STORAGE) ===== */
+let userId = localStorage.getItem("fanId");
+if (!userId) {
+  userId = "fan_" + Date.now();
+  localStorage.setItem("fanId", userId);
 }
 
-/* ---------------- Previous Scores for Animation ---------------- */
-let prevCPE=0, prevAGE=0;
+/* ADMIN SWITCH */
+let isAdmin = false; // change to true for admin
 
-/* ---------------- Match Listener ---------------- */
-matchRef.on("value", snapshot=>{
-  const data = snapshot.val();
-  if(!data) return;
+/* ===== COMMENTS ===== */
+let comments = JSON.parse(localStorage.getItem("comments")) || [];
 
-  // Update vs display
-  document.getElementById("vsDisplay").textContent = (data.stage=="PRE")? "VS" : `${data.scoreCPE||0} - ${data.scoreAGE||0}`;
+function renderComments() {
+  const box = document.getElementById("comments");
+  box.innerHTML = "";
 
-  // Animate logos on score change
-  if(data.scoreCPE>prevCPE){
-    animateTeam('teamCPE');
-  }
-  if(data.scoreAGE>prevAGE){
-    animateTeam('teamAGE');
-  }
-  prevCPE = data.scoreCPE||0;
-  prevAGE = data.scoreAGE||0;
-
-  // Update goal scorers
-  const goalDiv = document.getElementById("goals");
-  goalDiv.innerHTML = "";
-  if(data.goalScorers && data.goalScorers.length){
-    data.goalScorers.forEach((g,i)=>{
-      const p = document.createElement("p");
-      p.textContent = g;
-      if(document.getElementById("adminPanel").style.display=="block"){
-        const btn = document.createElement("span");
-        btn.textContent="❌";
-        btn.className="deleteBtn";
-        btn.onclick = ()=>deleteGoal(i);
-        p.appendChild(btn);
-      }
-      goalDiv.appendChild(p);
-    });
-  } else {
-    goalDiv.textContent = "None yet";
-  }
-
-  // Live comments
-  const liveDiv = document.getElementById("liveComments");
-  liveDiv.innerHTML="";
-  if(data.liveComments && data.liveComments.length){
-    data.liveComments.forEach((c,i)=>{
-      const p = document.createElement("p");
-      p.textContent = c;
-      if(document.getElementById("adminPanel").style.display=="block"){
-        const btn = document.createElement("span");
-        btn.textContent="❌";
-        btn.className="deleteBtn";
-        btn.onclick=()=>deleteComment(i);
-        p.appendChild(btn);
-      }
-      liveDiv.appendChild(p);
-    });
-  }
-
-  // Live bar
-  document.getElementById("liveBar").style.display = (["FH","HT","SH"].includes(data.stage))?"block":"none";
-
-  // Timer
-  if(data.stage=="FH" || data.stage=="SH"){
-    if(data.startTime) startLiveTimerFromStartTime(data.startTime, data.stage);
-  } else if(data.stage=="HT"){
-    document.getElementById("timer").textContent="HALF-TIME";
-    clearInterval(timerInterval);
-  } else if(data.stage=="FT"){
-    document.getElementById("timer").textContent="FULL-TIME";
-    clearInterval(timerInterval);
-  }
-});
-
-/* ---------------- Fan Comments Listener ---------------- */
-fanRef.on("value", snapshot=>{
-  const data = snapshot.val()||[];
-  const fanDiv = document.getElementById("fanComments");
-  fanDiv.innerHTML="";
-  data.forEach((c,i)=>{
-    const p=document.createElement("p");
-    p.textContent=c.text;
-    // Fan can delete own comment
-    if(c.ownerId===fanId){
-      const btn = document.createElement("span");
-      btn.textContent="❌";
-      btn.className="deleteBtn";
-      btn.onclick = ()=>deleteFanComment(c.id);
-      p.appendChild(btn);
-    }
-    // Admin delete already handled in panel
-    fanDiv.appendChild(p);
+  comments.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.innerHTML = `
+      ${c.text}
+      ${(c.userId === userId || isAdmin)
+        ? `<span class="delete" onclick="deleteComment(${i})">delete</span>`
+        : ""}
+    `;
+    box.appendChild(div);
   });
-});
 
-/* ---------------- Score Animation ---------------- */
-function animateTeam(teamId){
-  const el = document.getElementById(teamId);
-  el.classList.remove("score-animate");
-  void el.offsetWidth; // trigger reflow
-  el.classList.add("score-animate");
+  localStorage.setItem("comments", JSON.stringify(comments));
 }
 
-/* ---------------- Timer Function ---------------- */
-function startLiveTimerFromStartTime(startTimestamp, stage){
-  if(timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(()=>{
-    const now = Date.now();
-    let elapsed = Math.floor((now-startTimestamp)/60000); // minutes
-    let displayTime="";
-    if(stage=="FH"){
-      displayTime = `${elapsed}'`;
-    } else if(stage=="SH"){
-      elapsed+=30;
-      displayTime = `${elapsed}'`;
-    }
-    document.getElementById("timer").textContent=displayTime;
-  },1000);
-}
+function postComment() {
+  const input = document.getElementById("commentInput");
+  if (!input.value.trim()) return;
 
-/* ---------------- Stage, Score, Goal, Commentary ---------------- */
-function changeStage(){
-  const stage = document.getElementById("stageSelect").value;
-  if(stage=="FH" || stage=="SH"){
-    matchRef.update({stage, startTime: Date.now()});
-  } else{
-    matchRef.update({stage});
-  }
-}
-function setScore(team){
-  const val = (team=="CPE")? Number(document.getElementById("cpeScore").value) : Number(document.getElementById("ageScore").value);
-  if(team=="CPE") matchRef.update({scoreCPE:val});
-  else matchRef.update({scoreAGE:val});
-}
-function addGoal(){
-  const player = document.getElementById("goalPlayer").value.trim();
-  if(!player) return;
-  matchRef.child("goalScorers").once("value").then(s=>{
-    let arr = s.val()||[];
-    arr.push(player);
-    matchRef.update({goalScorers:arr});
+  comments.push({
+    text: input.value,
+    userId: userId
   });
-  document.getElementById("goalPlayer").value="";
-}
-function deleteGoal(i){
-  matchRef.child("goalScorers").once("value").then(s=>{
-    let arr = s.val()||[];
-    arr.splice(i,1);
-    matchRef.update({goalScorers:arr});
-  });
-}
-function deleteAllGoals(){ if(confirm("Delete all goals?")) matchRef.update({goalScorers:[]}); }
 
-function addCommentary(){
-  const text = document.getElementById("commentText").value.trim();
-  if(!text) return;
-  matchRef.child("liveComments").once("value").then(s=>{
-    let arr=s.val()||[];
-    arr.push(text);
-    matchRef.update({liveComments:arr});
-  });
-  document.getElementById("commentText").value="";
-}
-function deleteComment(i){
-  matchRef.child("liveComments").once("value").then(s=>{
-    let arr=s.val()||[];
-    arr.splice(i,1);
-    matchRef.update({liveComments:arr});
-  });
-}
-function deleteAllComments(){ 
-  if(confirm("Delete all comments?")) matchRef.update({liveComments:[]}); 
+  input.value = "";
+  renderComments();
 }
 
-/* ---------------- Fan Comments Add/Delete ---------------- */
-function addFanComment(){
-  const text = document.getElementById("fanComment").value.trim();
-  if(!text) return;
-
-  fanRef.once("value").then(s=>{
-    let arr = s.val()||[];
-    const commentObj = {
-      id: 'c_'+Date.now()+'_'+Math.floor(Math.random()*1000),
-      text: text,
-      ownerId: fanId
-    };
-    arr.push(commentObj);
-    fanRef.set(arr);
-  });
-  document.getElementById("fanComment").value="";
+function deleteComment(index) {
+  comments.splice(index, 1);
+  renderComments();
 }
 
-function deleteFanComment(commentId){
-  fanRef.once("value").then(s=>{
-    let arr = s.val()||[];
-    arr = arr.filter(c => c.id !== commentId);
-    fanRef.set(arr);
-  });
+renderComments();
+
+/* ===== GOALS ===== */
+function goal(team) {
+  const scoreEl = document.getElementById(team === "A" ? "scoreA" : "scoreB");
+  scoreEl.textContent = Number(scoreEl.textContent) + 1;
+
+  const teamEl = document.getElementById(team === "A" ? "teamA" : "teamB");
+  teamEl.classList.remove("goal-animate");
+  void teamEl.offsetWidth; // reflow
+  teamEl.classList.add("goal-animate");
 }
 
-/* ---------------- Hearts / Love Button ---------------- */
-function spawnHeart(x, y){
-  const heart = document.createElement("div");
-  heart.className="floatingHeart";
-  heart.textContent="💚";
-  const left = Math.max(8, Math.min(window.innerWidth - 32, x - 12));
-  const top = Math.max(8, Math.min(window.innerHeight - 32, y - 12));
-  heart.style.left = left + "px";
-  heart.style.top = top + "px";
-  document.body.appendChild(heart);
-  setTimeout(()=>heart.remove(),1500);
+/* ===== TIMER (SAFE) ===== */
+let seconds = 0;
+let timerRunning = false;
+let timerInterval = null;
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimer();
+  }, 1000);
 }
 
-document.getElementById("loveButton").addEventListener("click", e=>{
-  spawnHeart(e.clientX, e.clientY);
-  loveActionsRef.push({
-    x: e.clientX,
-    y: e.clientY,
-    time: Date.now()
-  });
-  loveRef.transaction(current => (current||0)+1);
-});
+function pauseTimer() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+}
 
-loveActionsRef.on("child_added", snapshot=>{
-  const data = snapshot.val()||{};
-  const randomX = Math.random()*(window.innerWidth-80)+40;
-  const baseY = window.innerHeight-120;
-  spawnHeart(randomX, baseY);
-});
+function updateTimer() {
+  const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  document.getElementById("timer").textContent = `${m}:${s}`;
+}
 
-loveRef.on("value", snapshot=>{
-  const count = snapshot.val()||0;
-  document.getElementById("loveCount").textContent = count;
+/* ===== HEART REACTION (NO FREEZE) ===== */
+document.body.addEventListener("pointerdown", (e) => {
+  const h = document.createElement("div");
+  h.className = "heart";
+  h.textContent = "❤️";
+  h.style.left = e.clientX + "px";
+  h.style.top = e.clientY + "px";
+  document.body.appendChild(h);
+
+  setTimeout(() => h.remove(), 1500);
 });
 </script>
+
 </body>
 </html>
