@@ -5,40 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Betting Page</title>
 <style>
-body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; }
+body{margin:0;font-family:Arial,sans-serif;background:#1e1e1e;color:#fff;}
 
-/* ===== BALANCE DISPLAY ===== */
-.balance{ position:fixed; top:10px; right:10px; background:#0a7cff; padding:8px 12px; border-radius:6px; font-weight:bold; z-index:1000; }
+/* BALANCE */
+.balance{position:fixed;top:10px;right:10px;background:#0a7cff;padding:8px 12px;border-radius:6px;font-weight:bold;z-index:1000;}
 
-/* ===== SCOREBOARD ===== */
-.scorecard{ background:#fff; color:#000; margin:15px auto; width:40%; min-width:280px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:15px; text-align:center; }
-.teams-row{ display:flex; justify-content:space-around; align-items:center; margin-bottom:5px; }
-.team{ display:flex; flex-direction:column; align-items:center; }
-.team img{ width:50px; height:50px; margin-bottom:5px; }
-.team-name{ font-size:14px; font-weight:bold; color:#222; }
-.score{ font-size:32px; font-weight:bold; }
-.match-time{ font-size:14px; color:#666; margin-bottom:10px; font-weight:500; }
-.divider{ height:1px; background:#e0e0e0; margin:10px 0; }
+/* SCOREBOARD */
+.scorecard{background:#fff;color:#000;margin:15px auto;width:40%;min-width:280px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1);padding:15px;text-align:center;}
+.teams-row{display:flex;justify-content:space-around;align-items:center;margin-bottom:5px;}
+.team{display:flex;flex-direction:column;align-items:center;}
+.team img{width:50px;height:50px;margin-bottom:5px;}
+.team-name{font-size:14px;font-weight:bold;color:#222;}
+.score{font-size:32px;font-weight:bold;}
+.match-time{font-size:14px;color:#666;margin-bottom:10px;font-weight:500;}
+.divider{height:1px;background:#e0e0e0;margin:10px 0;}
 
-/* ===== BETTING LAYOUT ===== */
-.betting-wrapper{ width:80%; max-width:800px; margin:0 auto 80px; }
-.market{ margin-bottom:20px; }
-.market-title{ font-size:16px; font-weight:bold; margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:5px; }
-.one-x-two{ display:flex; justify-content:space-between; }
-.odd-box{ flex:1; margin:0 5px; background:#2c2c2c; text-align:center; padding:15px 0; border-radius:8px; font-weight:bold; font-size:18px; cursor:pointer; transition:0.2s; }
-.odd-box:hover{ background:#444; }
-.over-under,.gg-ng{ width:100%; margin-top:10px; border-collapse: collapse; }
-.over-under th,.over-under td,.gg-ng th,.gg-ng td{ border:1px solid #444; padding:10px; text-align:center; }
-.over-under th,.gg-ng th{ font-weight:bold; }
-.over-under td,.gg-ng td{ background:#2c2c2c; cursor:pointer; font-size:16px; transition:0.2s; }
-.over-under td:hover,.gg-ng td:hover{ background:#444; }
+/* BETTING MARKETS */
+.betting-wrapper{width:80%;max-width:800px;margin:0 auto 100px;}
+.market{margin-bottom:20px;}
+.market-title{font-size:16px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #444;padding-bottom:5px;}
+.one-x-two{display:flex;justify-content:space-between;}
+.odd-box{flex:1;margin:0 5px;background:#2c2c2c;text-align:center;padding:15px 0;border-radius:8px;font-weight:bold;font-size:18px;cursor:pointer;transition:0.2s;}
+.odd-box:hover{background:#444;}
+.over-under,.gg-ng{width:100%;margin-top:10px;border-collapse: collapse;}
+.over-under th,.over-under td,.gg-ng th,.gg-ng td{border:1px solid #444;padding:10px;text-align:center;}
+.over-under th,.gg-ng th{font-weight:bold;}
+.over-under td,.gg-ng td{background:#2c2c2c;cursor:pointer;font-size:16px;transition:0.2s;}
+.over-under td:hover,.gg-ng td:hover{background:#444;}
 
-/* ===== FIXED BETSLIP ===== */
-.betslip{ position:fixed; bottom:0; left:0; right:0; background:#2c2c2c; padding:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; z-index:999; }
-.bets-container{ display:flex; flex-wrap:wrap; max-width:70%; overflow-x:auto; }
-.betslip-item{ background:#383838; padding:8px; border-radius:6px; margin:3px; white-space:nowrap; }
-.stake-input{ width:50px; padding:3px; border-radius:4px; border:none; text-align:center; margin-left:5px; }
-.place-btn, .open-bets-btn{ background:#0a7cff; border:none; border-radius:5px; padding:5px 10px; cursor:pointer; color:#fff; font-weight:bold; margin-left:5px; }
+/* FIXED BETSLIP */
+.betslip{position:fixed;bottom:0;left:0;right:0;background:#2c2c2c;padding:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;z-index:999;display:none;}
+.bets-container{display:flex;flex-wrap:wrap;max-width:70%;overflow-x:auto;}
+.betslip-item{background:#383838;padding:8px;border-radius:6px;margin:3px;white-space:nowrap;}
+.stake-input{width:50px;padding:3px;border-radius:4px;border:none;text-align:center;margin-left:5px;}
+.place-btn{background:#0a7cff;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;color:#fff;font-weight:bold;margin-left:5px;}
+
+/* FLOATING OPEN BETS BUTTON */
+.open-bets-btn{position:fixed;bottom:80px;right:20px;background:#0a7cff;color:#fff;padding:12px 18px;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;user-select:none;}
+.open-bets-btn:hover{opacity:0.9;}
 </style>
 </head>
 <body>
@@ -102,76 +106,73 @@ body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff;
 
 </div>
 
-<!-- ===== FIXED BETSLIP ===== -->
-<div class="betslip">
+<!-- BETSLIP -->
+<div class="betslip" id="betslip">
   <div class="bets-container" id="betsContainer"></div>
   Stake: <input type="number" id="stake" class="stake-input" value="100" min="1">
   <button class="place-btn" id="placeBet">Place Bets</button>
-  <button class="open-bets-btn" onclick="window.location.href='openbets.html'">Open Bets</button>
 </div>
 
+<!-- FLOATING OPEN BETS -->
+<div class="open-bets-btn" id="openBetsBtn" onclick="window.location.href='openbets.html'">Open Bets</div>
+
 <script>
-// --- LOCAL STORAGE BALANCE ---
+// LOCAL STORAGE BALANCE
 if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
-document.getElementById("balance").innerText = "Balance: NGN " + localStorage.getItem("balance");
+document.getElementById("balance").innerText="Balance: NGN "+localStorage.getItem("balance");
 
-let selectedBets = [];
-let activeBets = JSON.parse(localStorage.getItem("activeBets")||"[]");
+let selectedBets=[];
+let activeBets=JSON.parse(localStorage.getItem("activeBets")||"[]");
 
-// --- Update betslip ---
+// UPDATE BETSLIP
 function updateBetslip(){
-    const container = document.getElementById("betsContainer");
-    container.innerHTML="";
-    selectedBets.forEach(b=>{
-        const div = document.createElement("div");
-        div.className="betslip-item";
-        div.innerText = `${b.dataset.team} @ ${b.dataset.odd}`;
-        container.appendChild(div);
-    });
-    activeBets.forEach(b=>{
-        const div = document.createElement("div");
-        div.className="betslip-item";
-        div.innerText = `${b.team} @ ${b.odd} | Stake: NGN ${b.stake}`;
-        container.appendChild(div);
-    });
+  const container=document.getElementById("betsContainer");
+  container.innerHTML="";
+  selectedBets.forEach(b=>{
+    const div=document.createElement("div");
+    div.className="betslip-item";
+    div.innerText=`${b.dataset.team} @ ${b.dataset.odd}`;
+    container.appendChild(div);
+  });
 }
 
-// --- Select / Deselect Odds ---
+// SELECT / DESELECT ODDS
 document.querySelectorAll(".odd-box").forEach(box=>{
-    box.addEventListener("click",()=>{
-        if(selectedBets.includes(box)){
-            box.style.background="#2c2c2c";
-            selectedBets = selectedBets.filter(b=>b!==box);
-        } else {
-            box.style.background="#0a7cff";
-            selectedBets.push(box);
-        }
-        updateBetslip();
-    });
-});
-
-// --- Place Bet ---
-document.getElementById("placeBet").addEventListener("click",()=>{
-    const stake = parseInt(document.getElementById("stake").value);
-    if(selectedBets.length===0){ alert("No bets selected"); return; }
-    let balance = parseInt(localStorage.getItem("balance"));
-    const totalStake = stake*selectedBets.length;
-    if(totalStake>balance){ alert("Insufficient balance"); return; }
-    balance -= totalStake;
-    localStorage.setItem("balance",balance);
-    document.getElementById("balance").innerText="Balance: NGN "+balance;
-
-    selectedBets.forEach(b=>{
-        activeBets.push({team:b.dataset.team, odd:b.dataset.odd, stake:stake});
-        b.style.background="#2c2c2c";
-    });
-    selectedBets=[];
-    localStorage.setItem("activeBets",JSON.stringify(activeBets));
+  box.addEventListener("click",()=>{
+    const betslip=document.getElementById("betslip");
+    betslip.style.display="flex"; // show betslip when selecting
+    if(selectedBets.includes(box)){
+      box.style.background="#2c2c2c";
+      selectedBets=selectedBets.filter(b=>b!==box);
+    } else {
+      box.style.background="#0a7cff";
+      selectedBets.push(box);
+    }
     updateBetslip();
+    if(selectedBets.length===0) betslip.style.display="none";
+  });
 });
 
-updateBetslip();
+// PLACE BET
+document.getElementById("placeBet").addEventListener("click",()=>{
+  const stake=parseInt(document.getElementById("stake").value);
+  if(selectedBets.length===0){ alert("No bets selected"); return; }
+  let balance=parseInt(localStorage.getItem("balance"));
+  const totalStake=stake*selectedBets.length;
+  if(totalStake>balance){ alert("Insufficient balance"); return; }
+  balance-=totalStake;
+  localStorage.setItem("balance",balance);
+  document.getElementById("balance").innerText="Balance: NGN "+balance;
+
+  selectedBets.forEach(b=>{
+    activeBets.push({team:b.dataset.team, odd:b.dataset.odd, stake:stake, status:"pre-match"});
+    b.style.background="#2c2c2c";
+  });
+  selectedBets=[];
+  localStorage.setItem("activeBets",JSON.stringify(activeBets));
+  document.getElementById("betslip").style.display="none";
+});
 </script>
 
 </body>
-                        </html>
+</html>
