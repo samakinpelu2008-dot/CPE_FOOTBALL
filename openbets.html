@@ -4,51 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Open Bets</title>
+
 <style>
-body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; }
-.balance{ position:fixed; top:10px; right:10px; background:#0a7cff; padding:8px 12px; border-radius:6px; font-weight:bold; z-index:1000; }
-.bets-container{ width:80%; max-width:800px; margin:80px auto 20px; }
-.betslip-item{ background:#383838; padding:12px; border-radius:6px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
-.cashout-btn{ background:#ff9800; border:none; border-radius:5px; padding:5px 10px; cursor:pointer; color:#fff; font-weight:bold; }
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#121212;
+  color:#fff;
+}
+
+/* HEADER */
+.header{
+  background:#1e1e1e;
+  padding:15px;
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
+  position:sticky;
+  top:0;
+}
+
+/* BALANCE */
+.balance{
+  position:fixed;
+  top:15px;
+  right:15px;
+  background:#0a7cff;
+  padding:8px 12px;
+  border-radius:6px;
+  font-weight:bold;
+}
+
+/* BET CARD */
+.bet-card{
+  background:#1f1f1f;
+  margin:15px;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #2c2c2c;
+}
+
+.bet-header{
+  background:#2a2a2a;
+  padding:8px 12px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.bet-body{
+  padding:12px;
+}
+
+.bet-odd{
+  font-size:16px;
+  margin-bottom:5px;
+}
+
+.bet-match{
+  font-size:14px;
+  color:#ccc;
+  margin-bottom:8px;
+}
+
+.bet-status{
+  font-size:13px;
+  color:#aaa;
+}
+
+/* CASH OUT */
+.cashout-btn{
+  background:linear-gradient(135deg,#1aff1a,#0fbf0f);
+  color:#000;
+  text-align:center;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  animation:glow 1.5s infinite alternate;
+}
+
+@keyframes glow{
+  from{box-shadow:0 0 5px #1aff1a;}
+  to{box-shadow:0 0 15px #1aff1a;}
+}
+
+.empty{
+  text-align:center;
+  margin-top:50px;
+  color:#777;
+}
 </style>
 </head>
+
 <body>
 
+<div class="header">OPEN BETS</div>
 <div class="balance" id="balance">Balance: NGN 10000</div>
 
-<div class="bets-container" id="betsContainer"></div>
+<div id="betsContainer"></div>
 
 <script>
-// --- LOAD BALANCE & BITS ---
+// BALANCE
 if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
-document.getElementById("balance").innerText="Balance: NGN "+localStorage.getItem("balance");
-let activeBets = JSON.parse(localStorage.getItem("activeBets")||"[]");
+document.getElementById("balance").innerText =
+  "Balance: NGN " + localStorage.getItem("balance");
 
-function updateBets(){
-    const container = document.getElementById("betsContainer");
-    container.innerHTML="";
-    activeBets.forEach((b,i)=>{
-        const div = document.createElement("div");
-        div.className="betslip-item";
-        div.innerHTML = `<span>${b.team} @ ${b.odd} | Stake: NGN ${b.stake}</span>
-                         <button class="cashout-btn" onclick="cashout(${i})">Cashout</button>`;
-        container.appendChild(div);
-    });
+// LOAD BETS
+let activeBets = JSON.parse(localStorage.getItem("activeBets") || "[]");
+const container = document.getElementById("betsContainer");
+
+function renderBets(){
+  container.innerHTML = "";
+
+  if(activeBets.length === 0){
+    container.innerHTML = "<div class='empty'>No open bets</div>";
+    return;
+  }
+
+  activeBets.forEach((bet,index)=>{
+    const card = document.createElement("div");
+    card.className = "bet-card";
+
+    // MATCH STATUS LOGIC
+    let statusText = "";
+    if(bet.status === "pre-match"){
+      statusText = bet.time || "13:00";
+    } else if(bet.status === "live"){
+      statusText = `${bet.minute || "17'"} H1 | ${bet.score || "2:2"}`;
+    } else if(bet.status === "ft"){
+      statusText = `FT | ${bet.score || "2:3"}`;
+    }
+
+    card.innerHTML = `
+      <div class="bet-header">SINGLE</div>
+      <div class="bet-body">
+        <div class="bet-odd">⚽ ${bet.team} @ ${bet.odd}</div>
+        <div class="bet-match">CPE vs BMG</div>
+        <div class="bet-status">${statusText}</div>
+      </div>
+      <div class="cashout-btn" onclick="cashOut(${index})">
+        CASH OUT NGN ${Math.floor(bet.stake * bet.odd)}
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
 }
 
-function cashout(index){
-    const bet = activeBets[index];
-    let balance = parseInt(localStorage.getItem("balance"));
-    balance += Math.floor(bet.stake*parseFloat(bet.odd));
-    localStorage.setItem("balance",balance);
-    document.getElementById("balance").innerText="Balance: NGN "+balance;
-    activeBets.splice(index,1);
-    localStorage.setItem("activeBets",JSON.stringify(activeBets));
-    updateBets();
-    alert(`Cashout successful! NGN ${Math.floor(bet.stake*parseFloat(bet.odd))}`);
+// CASH OUT
+function cashOut(index){
+  const bet = activeBets[index];
+  let balance = parseInt(localStorage.getItem("balance"));
+  const payout = Math.floor(bet.stake * bet.odd);
+
+  balance += payout;
+  localStorage.setItem("balance",balance);
+  document.getElementById("balance").innerText =
+    "Balance: NGN " + balance;
+
+  activeBets.splice(index,1);
+  localStorage.setItem("activeBets",JSON.stringify(activeBets));
+  renderBets();
 }
 
-updateBets();
+renderBets();
 </script>
+
 </body>
 </html>
