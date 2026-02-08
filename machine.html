@@ -5,94 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Match Machine</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; background:#1e1e1e; color:#fff; padding:20px; }
-button{ padding:10px 15px; margin:5px; border:none; border-radius:6px; cursor:pointer; }
-.start-btn{ background:#0a7cff; color:#fff; }
-.stop-btn{ background:#ff0000; color:#fff; }
-.goal-btn{ background:#28a745; color:#fff; }
-.status{ margin-top:10px; font-size:18px; font-weight:bold; }
-.scoreboard{ background:#2c2c2c; padding:15px; border-radius:10px; margin-bottom:20px; }
-.scoreboard div{ margin:5px 0; }
+body { font-family: Arial,sans-serif; background:#1e1e1e; color:#fff; text-align:center; }
+.container { max-width:500px; margin:30px auto; background:#2c2c2c; padding:20px; border-radius:10px; }
+button { padding:10px 15px; margin:5px; border:none; border-radius:5px; cursor:pointer; }
+.start-btn{background:#0a7cff;color:#fff;}
+.add-goal{background:#4caf50;color:#fff;}
+.stop-btn{background:#ff5722;color:#fff;}
+input{padding:5px; width:80px; border-radius:5px; border:none;}
+h2{margin-bottom:15px;}
 </style>
 </head>
 <body>
-
-<h2>Match Machine (Admin Panel)</h2>
-
-<div class="scoreboard">
-  <div>Time: <span id="minute">0</span>'</div>
-  <div>Score: <span id="scoreCPE">0</span> - <span id="scoreBMG">0</span></div>
-  <div>Status: <span id="status">Not started</span></div>
+<div class="container">
+<h2>Admin Match Machine</h2>
+<div>
+  <button class="start-btn" id="startMatch">Start Match</button>
+  <button class="stop-btn" id="stopMatch">End Match</button>
 </div>
-
-<label>Set Match Duration (minutes):</label>
-<input type="number" id="matchDuration" value="15" min="1" style="width:60px;">
-<button class="start-btn" id="startMatch">Start Match</button>
-<button class="stop-btn" id="stopMatch">Stop Match</button>
-
 <div style="margin-top:15px;">
-  <button class="goal-btn" onclick="addGoal('CPE')">Add Goal CPE</button>
-  <button class="goal-btn" onclick="addGoal('BMG')">Add Goal BMG</button>
+  <input type="password" id="adminPass" placeholder="Admin Password">
+  <button class="add-goal" id="addGoalHome">Add Goal CPE</button>
+  <button class="add-goal" id="addGoalAway">Add Goal BMG</button>
+</div>
+<div style="margin-top:20px;">
+  <div>Time: <span id="matchTime">0'</span></div>
+  <div>Score: <span id="score">0 - 0</span></div>
+</div>
 </div>
 
 <script>
-let interval;
-let matchDuration = parseInt(document.getElementById("matchDuration").value);
-let currentMinute = 0;
-let score = {CPE:0, BMG:0};
-let statusEl = document.getElementById("status");
+// --- Initial Setup ---
+if(!localStorage.getItem("matchState")){
+  localStorage.setItem("matchState", JSON.stringify({
+    started:false,
+    time:0,
+    home:0,
+    away:0,
+    oddsHome:2.1,
+    oddsDraw:3.0,
+    oddsAway:2.5
+  }));
+}
 
-// --- Load bets ---
-let activeBets = JSON.parse(localStorage.getItem("activeBets")) || [];
+let timerInterval = null;
 
-// --- Start match ---
+function updateDisplay(){
+  const state = JSON.parse(localStorage.getItem("matchState"));
+  document.getElementById("matchTime").innerText = state.time + "'";
+  document.getElementById("score").innerText = state.home + " - " + state.away;
+}
+
+// --- Timer ---
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    let state = JSON.parse(localStorage.getItem("matchState"));
+    if(state.started){
+      state.time += 1;
+      localStorage.setItem("matchState", JSON.stringify(state));
+      updateDisplay();
+    }
+  },2000); // 1 minute of match = 2 seconds
+}
+
+// --- Start / Stop Match ---
 document.getElementById("startMatch").addEventListener("click", ()=>{
-    matchDuration = parseInt(document.getElementById("matchDuration").value);
-    currentMinute = 0;
-    statusEl.innerText = "In-Play";
-    interval = setInterval(()=>{
-        if(currentMinute < matchDuration){
-            currentMinute++;
-            document.getElementById("minute").innerText = currentMinute;
-            updateOdds();
-        } else {
-            statusEl.innerText = "Half-Time / End";
-            clearInterval(interval);
-        }
-    },2000); // 1 min = 2 sec simulation
+  let state = JSON.parse(localStorage.getItem("matchState"));
+  state.started = true;
+  localStorage.setItem("matchState", JSON.stringify(state));
+  startTimer();
 });
 
-// --- Stop match ---
 document.getElementById("stopMatch").addEventListener("click", ()=>{
-    clearInterval(interval);
-    statusEl.innerText = "Stopped";
+  let state = JSON.parse(localStorage.getItem("matchState"));
+  state.started = false;
+  localStorage.setItem("matchState", JSON.stringify(state));
+  clearInterval(timerInterval);
 });
 
-// --- Add Goal (password protected) ---
+// --- Add Goal ---
 function addGoal(team){
-    const pwd = prompt("Enter admin password:");
-    if(pwd !== "admin123"){ alert("Wrong password"); return; }
-    score[team]++;
-    document.getElementById("scoreCPE").innerText = score.CPE;
-    document.getElementById("scoreBMG").innerText = score.BMG;
-    updateOdds();
+  const pass = document.getElementById("adminPass").value;
+  if(pass !== "admin123"){ alert("Wrong password"); return; }
+  let state = JSON.parse(localStorage.getItem("matchState"));
+  if(team === "home") state.home += 1;
+  if(team === "away") state.away += 1;
+
+  // Adjust odds logically
+  const totalGoals = state.home + state.away;
+  const lead = state.home - state.away;
+  state.oddsHome = Math.max(1.01, 2.1 - 0.1*lead);
+  state.oddsAway = Math.max(1.01, 2.5 + 0.1*lead);
+  state.oddsDraw = Math.max(1.01, 3.0 - 0.05*lead);
+
+  localStorage.setItem("matchState", JSON.stringify(state));
+  updateDisplay();
 }
 
-// --- Update odds dynamically based on score and time ---
-function updateOdds(){
-    activeBets.forEach(b=>{
-        // Adjust odds: simple model
-        let odds = b.originalOdd;
-        if(score[b.team] > 0) odds = Math.max(1.01, odds - 0.2*score[b.team]); // leading team odds decrease
-        else odds = odds + 0.1; // losing team odds increase
-        b.currentOdd = parseFloat(odds.toFixed(2));
+document.getElementById("addGoalHome").addEventListener("click", ()=>addGoal("home"));
+document.getElementById("addGoalAway").addEventListener("click", ()=>addGoal("away"));
 
-        // Update minute for display
-        b.minute = currentMinute;
-    });
-    localStorage.setItem("activeBets",JSON.stringify(activeBets));
-}
+updateDisplay();
 </script>
-
 </body>
 </html>
