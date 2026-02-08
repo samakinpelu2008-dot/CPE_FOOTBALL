@@ -9,7 +9,7 @@ body {font-family:Arial,sans-serif;background:#121212;color:white;padding:20px;}
 .header {text-align:center;font-weight:bold;margin-bottom:20px;}
 .bet-card {background:#1f1f1f;padding:16px;border-radius:8px;margin-bottom:12px;}
 .cashout {background:#22c55e;color:#000;padding:10px;text-align:center;font-weight:bold;border-radius:6px;margin-top:10px;animation:glow 1.5s infinite alternate;}
-@keyframes glow{from{box-shadow:0 0 5px #22c55e;} to{box-shadow:0 0 15px #22c55e;}}
+@keyframes glow{0%{box-shadow:0 0 5px #22c55e;}50%{box-shadow:0 0 15px #22c55e;}100%{box-shadow:0 0 5px #22c55e;}}
 .empty{text-align:center;color:#777;margin-top:50px;}
 </style>
 </head>
@@ -19,52 +19,52 @@ body {font-family:Arial,sans-serif;background:#121212;color:white;padding:20px;}
 <div id="betsContainer"></div>
 
 <script>
-if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
-let activeBets = JSON.parse(localStorage.getItem("activeBets")||"[]");
-const container = document.getElementById("betsContainer");
+let activeBets = JSON.parse(localStorage.getItem("activeBets") || "[]");
 
-function getMatch(){return JSON.parse(localStorage.getItem("match")||'{"minute":0,"homeGoals":0,"awayGoals":0}');}
+function getMatch(){ return JSON.parse(localStorage.getItem("match") || '{"minute":0,"homeGoals":0,"awayGoals":0}'); }
 
-function calculateCashout(bet){
-  const match=getMatch();
-  let currentOdds=bet.odd;
-  // simple odds logic based on current score
-  if(match.homeGoals>match.awayGoals) currentOdds*=0.75;
-  if(match.homeGoals<match.awayGoals) currentOdds*=2;
-  return Math.round(bet.stake*(bet.odd/currentOdds)*0.85);
+function generateCashout(bet){
+  let match = getMatch();
+  let liveOdd = bet.odd;
+
+  // Simple machine logic for cash-out
+  if(match.homeGoals > match.awayGoals && bet.team==="1") liveOdd *= 0.8;
+  if(match.awayGoals > match.homeGoals && bet.team==="2") liveOdd *= 0.8;
+  if(match.homeGoals < match.awayGoals && bet.team==="1") liveOdd *= 1.5;
+  if(match.awayGoals < match.homeGoals && bet.team==="2") liveOdd *= 1.5;
+
+  return Math.round(bet.stake * liveOdd);
 }
 
 function renderBets(){
+  const container = document.getElementById("betsContainer");
   container.innerHTML="";
-  if(activeBets.length===0){container.innerHTML="<div class='empty'>No open bets</div>";return;}
+  if(activeBets.length===0){container.innerHTML="<div class='empty'>No open bets</div>"; return;}
   activeBets.forEach((bet,i)=>{
-    const match=getMatch();
-    let statusText="";
-    if(match.minute===0) statusText="13:00";
-    else if(match.minute>=90) statusText=`FT | ${match.homeGoals}:${match.awayGoals}`;
-    else statusText=`${match.minute}' | ${match.homeGoals}:${match.awayGoals}`;
-    const card=document.createElement("div");
+    const match = getMatch();
+    let statusText = (match.minute===0?"13:00":match.minute>=90?`FT | ${match.homeGoals}:${match.awayGoals}`:`${match.minute}' | ${match.homeGoals}:${match.awayGoals}`);
+    const card = document.createElement("div");
     card.className="bet-card";
     card.innerHTML=`<div>SINGLE</div>
-    <div style="margin-top:8px;">⚽ ${bet.team} @ ${bet.odd}</div>
-    <div>CPE vs BMG</div>
-    <div>${statusText}</div>
-    <div class="cashout" onclick="cashOut(${i})">${calculateCashout(bet)}</div>`;
+      <div>⚽ ${bet.team} @ ${bet.odd}</div>
+      <div>CPE vs BMG</div>
+      <div>${statusText}</div>
+      <div class="cashout" onclick="cashOut(${i})">${generateCashout(bet)}</div>`;
     container.appendChild(card);
   });
 }
 
 function cashOut(index){
-  let balance=parseInt(localStorage.getItem("balance"));
-  balance+=calculateCashout(activeBets[index]);
-  localStorage.setItem("balance",balance);
+  const bet = activeBets[index];
+  let balance = parseInt(localStorage.getItem("balance") || "10000");
+  balance += generateCashout(bet);
+  localStorage.setItem("balance", balance);
   activeBets.splice(index,1);
-  localStorage.setItem("activeBets",JSON.stringify(activeBets));
+  localStorage.setItem("activeBets", JSON.stringify(activeBets));
   renderBets();
 }
 
-setInterval(renderBets,1000);
+setInterval(renderBets,2000); // update every 2s
 </script>
-
 </body>
 </html>
