@@ -3,225 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bet Page Demo</title>
+<title>Department Match - Live</title>
 <style>
-body { font-family: Arial,sans-serif; background:#0f172a; color:white; padding:20px; }
-.match-card { background:#fff; color:#000; border-radius:10px; padding:16px; max-width:500px; margin:auto; box-shadow:0 10px 20px rgba(0,0,0,0.3);}
-.title { font-weight:bold; text-align:center; margin-bottom:10px; font-size:1.2em; }
-.timeScore { text-align:center;font-weight:bold;margin-bottom:10px;font-size:1em; }
-.market-section { margin:12px 0; }
-.market-title { font-weight:bold;margin-bottom:6px; }
+body { font-family: Arial, sans-serif; background:#f0f0f0; margin:0; padding:0; }
+.container { width: 90%; max-width: 600px; margin: 20px auto; }
+.card { background: #fff; padding: 15px; margin-bottom: 20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.2);}
+.scoreboard { display:flex; justify-content:space-between; align-items:center; font-size:18px; position: relative; }
+.team { text-align:center; flex:1; cursor:pointer; }
+.team img { width: 60px; height:60px; display:block; margin:0 auto; }
+.team-name { margin-top:5px; font-weight:bold; }
+.score { flex:1; text-align:center; font-size:24px; font-weight:bold; }
+.goals { margin-top:10px; display:flex; justify-content:space-between; }
+.goal-list { flex:1; font-size:14px; text-align:center; }
+button { padding:10px 15px; border:none; border-radius:5px; margin-top:10px; cursor:pointer; }
+.bet-section { background:#f7f7f7; padding:10px; border-radius:8px; margin-top:20px;}
 .odds { display:flex; justify-content:space-around; margin-bottom:10px; }
-.odds div { padding:10px; border-radius:6px; background:#e5e7eb; cursor:pointer; min-width:50px; text-align:center; }
-.odds div.selected { background:#0d6efd; color:white; }
-.bet-slip { margin-top:16px; background:#161b22; padding:12px; border-radius:8px; display:none; }
-.bet-slip input { width:100%; padding:6px; margin-top:6px; border-radius:4px; border:1px solid #ccc; }
-.bet-slip button { padding:8px 12px; margin-top:6px; border:none; border-radius:6px; background:#0f5132; color:white; cursor:pointer; width:100%; }
-.floating-open { position:fixed; bottom:20px; right:20px; padding:12px 16px; border-radius:50px; background:#0d6efd; cursor:pointer; font-weight:bold; }
-.cashout { margin-top:10px; padding:10px; text-align:center; font-weight:bold; border-radius:6px; background:#22c55e; color:#000; display:inline-block; }
+.odds div { padding:8px 12px; border:1px solid #ccc; border-radius:5px; cursor:pointer; }
+.odds div.selected { background:#3399ff; color:#fff; }
+#openBetBtn { position:fixed; bottom:20px; right:20px; background:#28a745; color:#fff; border:none; padding:12px; border-radius:50px; cursor:pointer; z-index:999; }
 </style>
 </head>
 <body>
 
-<div class="match-card">
-  <div class="title">CPE vs BMG</div>
-  <div class="timeScore" id="timeScore">13:00</div>
+<div class="container">
 
-  <!-- 1X2 Market -->
-  <div class="market-section">
-    <div class="market-title">1X2</div>
-    <div class="odds" id="odds1x2">
-      <div data-market="1">1</div>
-      <div data-market="X">X</div>
-      <div data-market="2">2</div>
+  <!-- Live Scoreboard -->
+  <div class="card">
+    <div class="scoreboard">
+      <div class="team" id="teamA">
+        <img src="https://i.ibb.co/1fgXH8TQ/file-0000000097cc71f48084d870a69383b2.png" alt="CPE Logo">
+        <div class="team-name">CPE</div>
+      </div>
+      <div class="score" id="score">0 - 0</div>
+      <div class="team" id="teamB">
+        <img src="https://i.ibb.co/93cfCTfC/file-00000000940871f4bce254a220506af2.png" alt="BMG Logo">
+        <div class="team-name">BMG</div>
+      </div>
+    </div>
+    <div class="goals">
+      <div class="goal-list" id="goalsA"></div>
+      <div class="goal-list" id="goalsB"></div>
     </div>
   </div>
 
-  <!-- Over/Under Market -->
-  <div class="market-section">
-    <div class="market-title">Over/Under</div>
-    <div class="odds" id="oddsOU">
-      <div data-market="0.5+">0.5+</div>
-      <div data-market="1.5+">1.5+</div>
-      <div data-market="2.5+">2.5+</div>
-      <div data-market="3.5+">3.5+</div>
-      <div data-market="4.5+">4.5+</div>
-      <div data-market="5.5+">5.5+</div>
+  <!-- Betting Section -->
+  <div class="card bet-section">
+    <h3>1X2</h3>
+    <div class="odds">
+      <div data-type="home">1.5</div>
+      <div data-type="draw">2.0</div>
+      <div data-type="away">2.5</div>
+    </div>
+
+    <h3>Over/Under</h3>
+    <div class="odds">
+      <div data-type="over">0.5</div>
+      <div data-type="under">1.5</div>
+    </div>
+
+    <h3>GG/NG</h3>
+    <div class="odds">
+      <div data-type="gg">GG</div>
+      <div data-type="ng">NG</div>
     </div>
   </div>
 
-  <!-- GG/NG Market -->
-  <div class="market-section">
-    <div class="market-title">GG/NG</div>
-    <div class="odds" id="oddsGG">
-      <div data-market="GG1">GG1</div>
-      <div data-market="NG1">NG1</div>
-      <div data-market="GG2">GG2</div>
-      <div data-market="NG2">NG2</div>
-      <div data-market="GG3">GG3</div>
-      <div data-market="NG3">NG3</div>
-    </div>
-  </div>
-
-  <div class="bet-slip" id="betSlip">
-    <div id="selectedMarket">⚽ -</div>
-    <input type="number" id="stakeInput" placeholder="Stake NGN">
-    <div class="cashout" id="cashout">NGN 0</div>
-    <button onclick="placeBet()">Place Bet</button>
-  </div>
 </div>
 
-<div class="floating-open" onclick="openBets()">Open Bets</div>
+<button id="openBetBtn">Open Bets</button>
 
 <script>
-// ===== MATCH STATE =====
-let match = {minute:0, homeGoals:0, awayGoals:0};
-let activeBets = JSON.parse(localStorage.getItem("activeBets") || "[]");
-
-// Match Simulation Speed
-const SPEED = 2000; // 1 min = 2 sec
-
-// ===== ODDS GENERATOR ("MACHINE") =====
-function generateOdds(){
-  // Basic dynamic odds logic
-  let homeOdd = 2 + Math.random()*0.5;
-  let drawOdd = 3 + Math.random()*1;
-  let awayOdd = 2.5 + Math.random()*1;
-
-  if(match.homeGoals > match.awayGoals){
-    homeOdd *= 0.8;
-    awayOdd *= 1.5;
-  } else if(match.homeGoals < match.awayGoals){
-    awayOdd *= 0.8;
-    homeOdd *= 1.5;
+// ---------- Long press for admin goal ----------
+let timer;
+function adminGoal(team) {
+  let pass = prompt("Enter Admin Password:");
+  if(pass === "admin123") {
+    let goalName = prompt("Enter goal scorer's name:");
+    let time = parseInt(localStorage.getItem("matchTime") || "0");
+    let goalEntry = `${goalName} ${time}' ⚽`;
+    if(team === 'A') {
+      let goalsA = JSON.parse(localStorage.getItem("goalsA")||"[]");
+      goalsA.push(goalEntry);
+      localStorage.setItem("goalsA", JSON.stringify(goalsA));
+    } else {
+      let goalsB = JSON.parse(localStorage.getItem("goalsB")||"[]");
+      goalsB.push(goalEntry);
+      localStorage.setItem("goalsB", JSON.stringify(goalsB));
+    }
+    updateScoreboard();
+    sendToMachine();
   }
+}
 
-  return {
-    '1': homeOdd.toFixed(2),
-    'X': drawOdd.toFixed(2),
-    '2': awayOdd.toFixed(2)
+function sendToMachine() {
+  // send all info to machine.html via localStorage
+  let data = {
+    score: document.getElementById("score").innerText,
+    goalsA: JSON.parse(localStorage.getItem("goalsA")||"[]"),
+    goalsB: JSON.parse(localStorage.getItem("goalsB")||"[]"),
+    time: parseInt(localStorage.getItem("matchTime")||"0")
   };
+  localStorage.setItem("machineData", JSON.stringify(data));
 }
 
-// Over/Under odds
-function generateOU(){
-  let base = 1.5;
-  let odds = {};
-  ['0.5+','1.5+','2.5+','3.5+','4.5+','5.5+'].forEach(k=>{
-    odds[k] = (base + Math.random()*0.5).toFixed(2);
-    base += 0.2;
+// ---------- Update scoreboard ----------
+function updateScoreboard() {
+  let goalsA = JSON.parse(localStorage.getItem("goalsA")||"[]");
+  let goalsB = JSON.parse(localStorage.getItem("goalsB")||"[]");
+  document.getElementById("goalsA").innerHTML = goalsA.join("<br>");
+  document.getElementById("goalsB").innerHTML = goalsB.join("<br>");
+  document.getElementById("score").innerText = `${goalsA.length} - ${goalsB.length}`;
+}
+
+// ---------- Admin long press ----------
+document.getElementById("teamA").addEventListener("mousedown", ()=>{timer=setTimeout(()=>{adminGoal('A');},5000);});
+document.getElementById("teamA").addEventListener("mouseup", ()=>{clearTimeout(timer);});
+document.getElementById("teamB").addEventListener("mousedown", ()=>{timer=setTimeout(()=>{adminGoal('B');},5000);});
+document.getElementById("teamB").addEventListener("mouseup", ()=>{clearTimeout(timer);});
+
+// ---------- Betting selection ----------
+document.querySelectorAll(".odds div").forEach(el=>{
+  el.addEventListener("click", ()=>{
+    if(el.classList.contains("selected")) el.classList.remove("selected");
+    else el.classList.add("selected");
   });
-  return odds;
-}
-
-// GG/NG odds
-function generateGG(){
-  let odds = {};
-  ['GG1','NG1','GG2','NG2','GG3','NG3'].forEach(k=>{
-    odds[k] = (1.5 + Math.random()).toFixed(2);
-  });
-  return odds;
-}
-
-// ===== BET SELECTION =====
-let selectedOdd = null;
-function selectOdd(div){
-  if(selectedOdd===div){
-    div.classList.remove("selected");
-    selectedOdd=null;
-    document.getElementById("betSlip").style.display="none";
-  } else {
-    document.querySelectorAll('.odds div').forEach(d=>d.classList.remove("selected"));
-    div.classList.add("selected");
-    selectedOdd=div;
-    document.getElementById("betSlip").style.display="block";
-  }
-}
-
-document.querySelectorAll('.odds div').forEach(div=>{
-  div.addEventListener("click",()=>selectOdd(div));
 });
 
-// ===== PLACE BET =====
-function placeBet(){
-  if(!selectedOdd) return alert("Select market");
-  let stake = parseInt(document.getElementById("stakeInput").value);
-  if(!stake) return alert("Enter stake");
-  let oddVal = parseFloat(selectedOdd.dataset.currentOdd);
-  activeBets.push({
-    market: selectedOdd.dataset.market,
-    stake: stake,
-    odd: oddVal,
-    timePlaced: match.minute
-  });
-  localStorage.setItem("activeBets",JSON.stringify(activeBets));
-  alert("Bet Placed!");
-  document.getElementById("betSlip").style.display="none";
-  document.getElementById("stakeInput").value="";
-  selectedOdd.classList.remove("selected");
-  selectedOdd=null;
-}
-
-// ===== OPEN BETS =====
-function openBets(){
+// ---------- Open bets navigation ----------
+document.getElementById("openBetBtn").addEventListener("click", ()=>{
   window.open("openbets.html","_blank");
-}
+});
 
-// ===== UPDATE CASHOUT =====
-function updateCashout(){
-  if(!selectedOdd) return;
-  let stake = parseInt(document.getElementById("stakeInput").value)||0;
-  let oddsVal = parseFloat(selectedOdd.dataset.currentOdd);
-  let cash = Math.round(stake * oddsVal);
-  document.getElementById("cashout").innerText = "NGN "+cash.toLocaleString();
-}
-
-// blinking effect
-let shining=false;
-setInterval(()=>{
-  let co = document.getElementById("cashout");
-  co.style.opacity = shining?"1":"0.6";
-  shining = !shining;
-},1500);
-
-// ===== SIMULATE MATCH =====
-function simulateMatch(){
-  match.minute +=1;
-
-  // Simple goal events for demo
-  if(match.minute===10) match.homeGoals++;
-  if(match.minute===30) match.awayGoals++;
-  if(match.minute===50) match.homeGoals++;
-
-  // Update UI timeScore
-  document.getElementById("timeScore").innerText = 
-    (match.minute>=90?`FT | ${match.homeGoals}:${match.awayGoals}`:`${match.minute}' | ${match.homeGoals}:${match.awayGoals}`);
-
-  // Update 1X2 odds
-  let odds1x2 = generateOdds();
-  document.querySelectorAll('#odds1x2 div').forEach(d=>{
-    d.innerText = `${d.dataset.market}\n${odds1x2[d.dataset.market]}`;
-    d.dataset.currentOdd = odds1x2[d.dataset.market];
-  });
-
-  // Update OU odds
-  let oddsOU = generateOU();
-  document.querySelectorAll('#oddsOU div').forEach(d=>{
-    d.innerText = `${d.dataset.market}\n${oddsOU[d.dataset.market]}`;
-    d.dataset.currentOdd = oddsOU[d.dataset.market];
-  });
-
-  // Update GG/NG odds
-  let oddsGG = generateGG();
-  document.querySelectorAll('#oddsGG div').forEach(d=>{
-    d.innerText = `${d.dataset.market}\n${oddsGG[d.dataset.market]}`;
-    d.dataset.currentOdd = oddsGG[d.dataset.market];
-  });
-
-  updateCashout();
-}
-
-setInterval(simulateMatch,SPEED);
+// ---------- Initial load ----------
+updateScoreboard();
 </script>
+
 </body>
 </html>
