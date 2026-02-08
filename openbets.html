@@ -8,7 +8,7 @@
 body {font-family:Arial,sans-serif;background:#121212;color:white;padding:20px;}
 .header {text-align:center;font-weight:bold;margin-bottom:20px;}
 .bet-card {background:#1f1f1f;padding:16px;border-radius:8px;margin-bottom:12px;}
-.cashout {background:#22c55e;color:#000;padding:10px;text-align:center;font-weight:bold;border-radius:6px;margin-top:10px;animation:glow 1.5s infinite alternate;}
+.cashout {background:#22c55e;color:#000;padding:10px;text-align:center;font-weight:bold;border-radius:6px;margin-top:10px;animation:glow 1.5s infinite alternate;cursor:pointer;}
 @keyframes glow{0%{box-shadow:0 0 5px #22c55e;}50%{box-shadow:0 0 15px #22c55e;}100%{box-shadow:0 0 5px #22c55e;}}
 .empty{text-align:center;color:#777;margin-top:50px;}
 </style>
@@ -26,45 +26,44 @@ function getMatch(){ return JSON.parse(localStorage.getItem("match") || '{"minut
 function generateCashout(bet){
   let match = getMatch();
   let liveOdd = bet.odd;
-
-  // Simple machine logic for cash-out
-  if(match.homeGoals > match.awayGoals && bet.team==="1") liveOdd *= 0.8;
-  if(match.awayGoals > match.homeGoals && bet.team==="2") liveOdd *= 0.8;
-  if(match.homeGoals < match.awayGoals && bet.team==="1") liveOdd *= 1.5;
-  if(match.awayGoals < match.homeGoals && bet.team==="2") liveOdd *= 1.5;
-
-  return Math.round(bet.stake * liveOdd);
+  // adjust odds dynamically based on match
+  if(match.homeGoals > match.awayGoals && bet.market==='1') liveOdd *=0.8;
+  if(match.awayGoals > match.homeGoals && bet.market==='2') liveOdd *=0.8;
+  if(match.homeGoals < match.awayGoals && bet.market==='1') liveOdd *=1.5;
+  if(match.awayGoals < match.homeGoals && bet.market==='2') liveOdd *=1.5;
+  return Math.round(bet.stake*liveOdd);
 }
 
 function renderBets(){
   const container = document.getElementById("betsContainer");
   container.innerHTML="";
-  if(activeBets.length===0){container.innerHTML="<div class='empty'>No open bets</div>"; return;}
+  if(activeBets.length===0){ container.innerHTML="<div class='empty'>No open bets</div>"; return;}
   activeBets.forEach((bet,i)=>{
-    const match = getMatch();
+    let match = getMatch();
     let statusText = (match.minute===0?"13:00":match.minute>=90?`FT | ${match.homeGoals}:${match.awayGoals}`:`${match.minute}' | ${match.homeGoals}:${match.awayGoals}`);
     const card = document.createElement("div");
     card.className="bet-card";
-    card.innerHTML=`<div>SINGLE</div>
-      <div>⚽ ${bet.team} @ ${bet.odd}</div>
+    card.innerHTML=`
+      <div>SINGLE</div>
+      <div>⚽ ${bet.market} @ ${bet.odd}</div>
       <div>CPE vs BMG</div>
       <div>${statusText}</div>
-      <div class="cashout" onclick="cashOut(${i})">${generateCashout(bet)}</div>`;
+      <div class="cashout" onclick="cashOut(${i})">NGN ${generateCashout(bet)}</div>`;
     container.appendChild(card);
   });
 }
 
 function cashOut(index){
-  const bet = activeBets[index];
-  let balance = parseInt(localStorage.getItem("balance") || "10000");
+  let bet = activeBets[index];
+  let balance = parseInt(localStorage.getItem("balance")||"10000");
   balance += generateCashout(bet);
-  localStorage.setItem("balance", balance);
+  localStorage.setItem("balance",balance);
   activeBets.splice(index,1);
-  localStorage.setItem("activeBets", JSON.stringify(activeBets));
+  localStorage.setItem("activeBets",JSON.stringify(activeBets));
   renderBets();
 }
 
-setInterval(renderBets,2000); // update every 2s
+setInterval(renderBets,2000); // refresh every 2 sec
 </script>
 </body>
 </html>
