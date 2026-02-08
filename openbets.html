@@ -5,65 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Open Bets</title>
 <style>
-body {font-family:Arial,sans-serif;background:#121212;color:white;padding:20px;}
-.header {text-align:center;font-weight:bold;margin-bottom:20px;}
-.bet-card {background:#1f1f1f;padding:16px;border-radius:8px;margin-bottom:12px;}
-.cashout {background:#22c55e;color:#000;padding:10px;text-align:center;font-weight:bold;border-radius:6px;margin-top:10px;animation:glow 1.5s infinite alternate;cursor:pointer;}
-@keyframes glow{0%{box-shadow:0 0 5px #22c55e;}50%{box-shadow:0 0 15px #22c55e;}100%{box-shadow:0 0 5px #22c55e;}}
-.empty{text-align:center;color:#777;margin-top:50px;}
+body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; }
+
+/* ===== OPEN BET CARDS ===== */
+.bet-card{ background:#2c2c2c; border-radius:12px; margin:15px auto; width:80%; max-width:500px; padding:15px; box-shadow:0 2px 8px rgba(0,0,0,0.5); }
+.bet-card h3{ margin:0 0 10px 0; font-size:16px; }
+.bet-card .match-info{ display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold; }
+.bet-card .cashout{ background:#28a745; color:#fff; padding:6px 10px; border-radius:6px; font-weight:bold; cursor:pointer; display:inline-block; animation: blink 1.5s infinite; }
+@keyframes blink{
+  0%,50%,100%{opacity:1;}
+  25%,75%{opacity:0.3;}
+}
+
+/* No bets message */
+.no-bets{ text-align:center; margin-top:50px; color:#aaa; font-size:18px; }
+
+/* Balance */
+.balance{ position:fixed; top:10px; right:10px; background:#0a7cff; padding:8px 12px; border-radius:6px; font-weight:bold; z-index:1000; }
+
 </style>
 </head>
 <body>
 
-<div class="header">OPEN BETS</div>
+<div class="balance" id="balance">Balance: NGN 10000</div>
+
 <div id="betsContainer"></div>
 
 <script>
-let activeBets = JSON.parse(localStorage.getItem("activeBets") || "[]");
+// --- Load balance ---
+if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
+document.getElementById("balance").innerText = "Balance: NGN " + localStorage.getItem("balance");
 
-function getMatch(){ return JSON.parse(localStorage.getItem("match") || '{"minute":0,"homeGoals":0,"awayGoals":0}'); }
+// --- Active bets (simulate shared state from bet.html) ---
+let activeBets = JSON.parse(localStorage.getItem("activeBets")) || [];
 
-function generateCashout(bet){
-  let match = getMatch();
-  let liveOdd = bet.odd;
-  // adjust odds dynamically based on match
-  if(match.homeGoals > match.awayGoals && bet.market==='1') liveOdd *=0.8;
-  if(match.awayGoals > match.homeGoals && bet.market==='2') liveOdd *=0.8;
-  if(match.homeGoals < match.awayGoals && bet.market==='1') liveOdd *=1.5;
-  if(match.awayGoals < match.homeGoals && bet.market==='2') liveOdd *=1.5;
-  return Math.round(bet.stake*liveOdd);
+// --- Update Open Bets UI ---
+function updateOpenBets(){
+    const container = document.getElementById("betsContainer");
+    container.innerHTML = "";
+    if(activeBets.length===0){
+        container.innerHTML='<div class="no-bets">No active bets</div>';
+        return;
+    }
+
+    activeBets.forEach((b,i)=>{
+        // Determine match status
+        let status = "Pre-Match";
+        if(b.minute!==undefined){
+            if(b.minute<45) status = b.minute+"' H1";
+            else if(b.minute<90) status = (b.minute-45)+"' H2";
+            else status = "FT";
+        }
+
+        const card = document.createElement("div");
+        card.classList.add("bet-card");
+        card.innerHTML = `
+            <h3>${b.team}</h3>
+            <div class="match-info">
+                <span>${status}</span>
+                <span>Stake: NGN ${b.stake}</span>
+            </div>
+            <div class="match-info">
+                <span>Odd: ${b.currentOdd.toFixed(2)}</span>
+                <span class="cashout" onclick="cashoutBet(${i})">NGN ${Math.floor(b.stake*b.currentOdd)}</span>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
 
-function renderBets(){
-  const container = document.getElementById("betsContainer");
-  container.innerHTML="";
-  if(activeBets.length===0){ container.innerHTML="<div class='empty'>No open bets</div>"; return;}
-  activeBets.forEach((bet,i)=>{
-    let match = getMatch();
-    let statusText = (match.minute===0?"13:00":match.minute>=90?`FT | ${match.homeGoals}:${match.awayGoals}`:`${match.minute}' | ${match.homeGoals}:${match.awayGoals}`);
-    const card = document.createElement("div");
-    card.className="bet-card";
-    card.innerHTML=`
-      <div>SINGLE</div>
-      <div>⚽ ${bet.market} @ ${bet.odd}</div>
-      <div>CPE vs BMG</div>
-      <div>${statusText}</div>
-      <div class="cashout" onclick="cashOut(${i})">NGN ${generateCashout(bet)}</div>`;
-    container.appendChild(card);
-  });
+// --- Cashout function ---
+function cashoutBet(index){
+    const bet = activeBets[index];
+    let balance = parseInt(localStorage.getItem("balance"));
+    const winAmount = bet.stake*bet.currentOdd;
+    balance += Math.floor(winAmount);
+    localStorage.setItem("balance",balance);
+    document.getElementById("balance").innerText="Balance: NGN "+balance;
+    alert(`Cashout successful! You won NGN ${Math.floor(winAmount)}`);
+    activeBets.splice(index,1);
+    localStorage.setItem("activeBets",JSON.stringify(activeBets));
+    updateOpenBets();
 }
 
-function cashOut(index){
-  let bet = activeBets[index];
-  let balance = parseInt(localStorage.getItem("balance")||"10000");
-  balance += generateCashout(bet);
-  localStorage.setItem("balance",balance);
-  activeBets.splice(index,1);
-  localStorage.setItem("activeBets",JSON.stringify(activeBets));
-  renderBets();
+// --- Simulate live odds updates ---
+function fluctuateOdds(){
+    activeBets.forEach(b=>{
+        let change = (Math.random()*0.2 - 0.1);
+        b.currentOdd = Math.max(1.01,b.currentOdd + change);
+        // simulate minute
+        if(!b.minute) b.minute=0;
+        if(b.minute<90) b.minute+=Math.floor(Math.random()*3); // 1-2 simulated mins
+    });
+    localStorage.setItem("activeBets",JSON.stringify(activeBets));
+    updateOpenBets();
 }
 
-setInterval(renderBets,2000); // refresh every 2 sec
+setInterval(fluctuateOdds,3000);
+
+// Initial render
+updateOpenBets();
+
 </script>
 </body>
 </html>
