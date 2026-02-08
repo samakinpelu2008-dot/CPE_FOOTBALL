@@ -3,75 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Betting Page</title>
+<title>Bet Page</title>
 <style>
-body { margin:0; font-family: Arial, sans-serif; background:#1e1e1e; color:#fff; }
-
-/* ===== SCOREBOARD ===== */
-.scorecard{ background:#fff; color:#000; margin:15px auto; width:40%; min-width:280px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:15px; text-align:center; }
-.teams-row{ display:flex; justify-content:space-around; align-items:center; margin-bottom:5px; }
-.team{ display:flex; flex-direction:column; align-items:center; }
-.team img{ width:50px; height:50px; margin-bottom:5px; cursor:pointer; }
-.team-name{ font-size:14px; font-weight:bold; color:#222; }
-.score{ font-size:32px; font-weight:bold; }
-.match-time{ font-size:14px; color:#666; margin-bottom:10px; font-weight:500; }
-.divider{ height:1px; background:#e0e0e0; margin:10px 0; }
-
-/* ===== BETTING LAYOUT ===== */
-.betting-wrapper{ width:80%; max-width:800px; margin:0 auto 80px; }
-.market{ margin-bottom:20px; }
-.market-title{ font-size:16px; font-weight:bold; margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:5px; }
-.one-x-two{ display:flex; justify-content:space-between; }
-.odd-box{ flex:1; margin:0 5px; background:#2c2c2c; text-align:center; padding:15px 0; border-radius:8px; font-weight:bold; font-size:18px; cursor:pointer; transition:0.2s; }
-.odd-box:hover{ background:#444; }
-.over-under,.gg-ng{ width:100%; margin-top:10px; border-collapse: collapse; }
-.over-under th,.over-under td,.gg-ng th,.gg-ng td{ border:1px solid #444; padding:10px; text-align:center; }
-.over-under th,.gg-ng th{ font-weight:bold; }
-.over-under td,.gg-ng td{ background:#2c2c2c; cursor:pointer; font-size:16px; transition:0.2s; }
-.over-under td:hover,.gg-ng td:hover{ background:#444; }
-
-/* BETSLIP */
-.betslip{ position:fixed; bottom:0; left:0; right:0; background:#2c2c2c; padding:10px; display:none; color:#fff; box-shadow:0 -2px 10px rgba(0,0,0,0.5); }
-.betslip-item{ margin-bottom:8px; }
-.place-btn{ width:100%; padding:10px; background:#0a7cff; color:#fff; border:none; border-radius:6px; font-size:16px; margin-top:5px; }
-input.stake-input{ width:50px; padding:5px; border-radius:4px; border:none; text-align:center; margin-left:5px; }
-.balance{ position:fixed; top:10px; right:10px; background:#0a7cff; padding:8px 12px; border-radius:6px; font-weight:bold; z-index:1000; }
-.cashout-btn{ background:#28a745; border:none; border-radius:5px; padding:3px 6px; cursor:pointer; color:#fff; font-weight:bold; margin-left:5px; animation: blink 1.5s infinite; }
-
-@keyframes blink{
-  0%,50%,100%{opacity:1;}
-  25%,75%{opacity:0.3;}
-}
-
-/* Floating open bets */
-#openBetsBtn{
-  position:fixed;
-  bottom:100px;
-  right:20px;
-  background:#0a7cff;
-  padding:12px 18px;
-  border-radius:50px;
-  cursor:pointer;
-  font-weight:bold;
-  box-shadow:0 2px 8px rgba(0,0,0,0.5);
-  z-index:1000;
-}
+body{margin:0; font-family:Arial,sans-serif; background:#1e1e1e; color:#fff;}
+.scorecard{background:#fff; color:#000; margin:15px auto; width:40%; border-radius:12px; padding:15px; text-align:center;}
+.teams-row{display:flex; justify-content:space-around; align-items:center; margin-bottom:5px;}
+.team{display:flex; flex-direction:column; align-items:center;}
+.team img{width:50px;height:50px;margin-bottom:5px;}
+.team-name{font-weight:bold;}
+.score{font-size:28px;font-weight:bold;}
+.divider{height:1px; background:#e0e0e0; margin:10px 0;}
+.betting-wrapper{width:80%; max-width:800px; margin:0 auto;}
+.market{margin-bottom:20px;}
+.market-title{font-weight:bold; margin-bottom:8px;}
+.one-x-two{display:flex; justify-content:space-between;}
+.odd-box{flex:1; margin:0 5px; background:#2c2c2c; text-align:center; padding:15px 0; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;}
+.odd-box:hover{background:#444;}
+.betslip{position:fixed; bottom:0; left:0; right:0; background:#2c2c2c; padding:10px; display:none; color:#fff;}
+.betslip-item{margin-bottom:8px;}
+.place-btn{width:100%; padding:10px; background:#0a7cff; color:#fff; border:none; border-radius:6px; font-size:16px; margin-top:5px;}
+input.stake-input{width:50px; padding:5px; border-radius:4px; border:none; text-align:center; margin-left:5px;}
 </style>
 </head>
 <body>
 
-<div class="balance" id="balance">Balance: NGN 10000</div>
-
-<!-- SCOREBOARD -->
 <div class="scorecard">
   <div class="match-time" id="matchTime">0'</div>
   <div class="teams-row">
-    <div class="team" id="homeTeam">
+    <div class="team">
       <img src="https://i.ibb.co/1fgXH8TQ/file-0000000097cc71f48084d870a69383b2.png">
       <div class="team-name">CPE</div>
     </div>
     <div class="score" id="score">0 - 0</div>
-    <div class="team" id="awayTeam">
+    <div class="team">
       <img src="https://i.ibb.co/93cfCTfC/file-00000000940871f4bce254a220506af2.png">
       <div class="team-name">BMG</div>
     </div>
@@ -80,168 +44,81 @@ input.stake-input{ width:50px; padding:5px; border-radius:4px; border:none; text
 </div>
 
 <div class="betting-wrapper">
-
-  <!-- 1X2 -->
   <div class="market">
     <div class="market-title">1X2</div>
     <div class="one-x-two">
-      <div class="odd-box" data-team="CPE" data-odd="2.10">CPE<br>2.10</div>
-      <div class="odd-box" data-team="Draw" data-odd="3.00">Draw<br>3.00</div>
-      <div class="odd-box" data-team="BMG" data-odd="2.50">BMG<br>2.50</div>
+      <div class="odd-box" data-team="CPE" data-type="1X2">CPE</div>
+      <div class="odd-box" data-team="Draw" data-type="1X2">Draw</div>
+      <div class="odd-box" data-team="BMG" data-type="1X2">BMG</div>
     </div>
   </div>
-
-  <!-- OVER/UNDER -->
-  <div class="market">
-    <div class="market-title">OVER / UNDER</div>
-    <table class="over-under">
-      <tr><th>Goal</th><th>OVER</th><th>UNDER</th></tr>
-      <tr><td>0.5</td><td class="odd-box" data-team="O 0.5" data-odd="1.30">1.30</td><td class="odd-box" data-team="U 0.5" data-odd="3.50">3.50</td></tr>
-      <tr><td>1.5</td><td class="odd-box" data-team="O 1.5" data-odd="2.10">2.10</td><td class="odd-box" data-team="U 1.5" data-odd="1.70">1.70</td></tr>
-      <tr><td>2.5</td><td class="odd-box" data-team="O 2.5" data-odd="2.50">2.50</td><td class="odd-box" data-team="U 2.5" data-odd="1.80">1.80</td></tr>
-    </table>
-  </div>
-
-  <!-- GG/NG -->
-  <div class="market">
-    <div class="market-title">GG / NG</div>
-    <table class="gg-ng">
-      <tr><th>Goal+</th><th>GG</th><th>NG</th></tr>
-      <tr><td>1+</td><td class="odd-box" data-team="GG 1+" data-odd="1.90">1.90</td><td class="odd-box" data-team="NG 1+" data-odd="1.80">1.80</td></tr>
-      <tr><td>2+</td><td class="odd-box" data-team="GG 2+" data-odd="2.10">2.10</td><td class="odd-box" data-team="NG 2+" data-odd="2.00">2.00</td></tr>
-    </table>
-  </div>
-
 </div>
 
-<!-- BETSLIP -->
 <div class="betslip" id="betslip">
   <div class="betslip-item" id="betInfo"></div>
   Stake: NGN <input type="number" id="stake" class="stake-input" min="1" value="100">
   <button class="place-btn" id="placeBet">Place Bet</button>
 </div>
 
-<!-- Floating Open Bets Button -->
-<div id="openBetsBtn">Open Bets</div>
-
 <script>
-// --- Balance ---
+// --- Local Storage Setup ---
 if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
-document.getElementById("balance").innerText = "Balance: NGN " + localStorage.getItem("balance");
 
-// --- Selection ---
-let selectedBets = [];
-let activeBets = [];
+let selectedBet = null;
+let activeBets = JSON.parse(localStorage.getItem("activeBets") || "[]");
 
-// --- Score Simulation ---
-let homeScore=0, awayScore=0, matchMinute=0, matchInterval;
 function updateScoreboard(){
-    document.getElementById("score").innerText = `${homeScore} - ${awayScore}`;
-    document.getElementById("matchTime").innerText = `${matchMinute}'`;
+  const state = JSON.parse(localStorage.getItem("matchState") || '{"time":0,"home":0,"away":0}');
+  document.getElementById("matchTime").innerText = state.time + "'";
+  document.getElementById("score").innerText = state.home + " - " + state.away;
+  const boxes = document.querySelectorAll(".odd-box");
+  boxes.forEach(b=>{
+    if(b.dataset.team === "CPE") b.innerText = `CPE\n${state.oddsHome.toFixed(2)}`;
+    if(b.dataset.team === "Draw") b.innerText = `Draw\n${state.oddsDraw.toFixed(2)}`;
+    if(b.dataset.team === "BMG") b.innerText = `BMG\n${state.oddsAway.toFixed(2)}`;
+  });
 }
 
-// --- Betslip Update ---
-function updateBetslip(){
-    const betInfo = document.getElementById("betInfo");
-    if(selectedBets.length === 0 && activeBets.length === 0){
-        document.getElementById("betslip").style.display="none";
-        betInfo.innerHTML="";
-        return;
-    }
-    let text="";
-    selectedBets.forEach(b=>{
-        text+=`Pending: ${b.dataset.team} @ ${b.dataset.odd}<br>`;
-    });
-    activeBets.forEach((b,i)=>{
-        text+=`Active: ${b.team} @ ${b.currentOdd.toFixed(2)} | Stake: NGN ${b.stake} <button class="cashout-btn" onclick="cashoutBet(${i})">Cashout</button><br>`;
-    });
-    betInfo.innerHTML=text;
-    document.getElementById("betslip").style.display="block";
-}
+setInterval(updateScoreboard,1000);
 
-// --- Toggle Odds Selection ---
+// --- Select Bet ---
 document.querySelectorAll(".odd-box").forEach(box=>{
-    box.addEventListener("click", ()=>{
-        if(selectedBets.includes(box)){
-            box.style.background="#2c2c2c";
-            selectedBets = selectedBets.filter(b=>b!==box);
-        } else {
-            box.style.background="#0a7cff";
-            selectedBets.push(box);
-        }
-        updateBetslip();
-    });
+  box.addEventListener("click", ()=>{
+    if(selectedBet === box){
+      box.style.background="#2c2c2c";
+      selectedBet=null;
+    } else {
+      if(selectedBet) selectedBet.style.background="#2c2c2c";
+      box.style.background="#0a7cff";
+      selectedBet = box;
+    }
+    document.getElementById("betslip").style.display = selectedBet? "block":"none";
+  });
 });
 
 // --- Place Bet ---
 document.getElementById("placeBet").addEventListener("click", ()=>{
-    const stake = parseInt(document.getElementById("stake").value);
-    if(selectedBets.length===0){ alert("No bets selected"); return; }
-    let balance=parseInt(localStorage.getItem("balance"));
-    const totalStake=stake*selectedBets.length;
-    if(totalStake>balance){ alert(`Insufficient balance. You need NGN ${totalStake}`); return; }
-    balance -= totalStake;
-    localStorage.setItem("balance",balance);
-    document.getElementById("balance").innerText="Balance: NGN "+balance;
-    selectedBets.forEach(b=>{
-        activeBets.push({team:b.dataset.team, originalOdd:parseFloat(b.dataset.odd), currentOdd:parseFloat(b.dataset.odd), stake:stake, element:b});
-        b.style.background="#2c2c2c";
-    });
-    selectedBets=[];
-    updateBetslip();
+  if(!selectedBet){ alert("Select a bet"); return; }
+  const stake = parseInt(document.getElementById("stake").value);
+  let balance = parseInt(localStorage.getItem("balance"));
+  const state = JSON.parse(localStorage.getItem("matchState") || '{}');
+  let currentOdd = 1;
+  if(selectedBet.dataset.team==="CPE") currentOdd=state.oddsHome;
+  if(selectedBet.dataset.team==="Draw") currentOdd=state.oddsDraw;
+  if(selectedBet.dataset.team==="BMG") currentOdd=state.oddsAway;
+  if(stake>balance){ alert("Insufficient balance"); return; }
+  balance -= stake;
+  localStorage.setItem("balance",balance);
+  localStorage.setItem("activeBets",JSON.stringify([...activeBets,{
+    team:selectedBet.dataset.team,
+    stake:stake,
+    originalOdd:currentOdd
+  }]));
+  alert("Bet placed!");
+  selectedBet.style.background="#2c2c2c";
+  selectedBet=null;
+  document.getElementById("betslip").style.display="none";
 });
-
-// --- Cashout ---
-function cashoutBet(index){
-    const bet = activeBets[index];
-    let balance = parseInt(localStorage.getItem("balance"));
-    const winAmount = bet.stake*bet.currentOdd;
-    balance += Math.floor(winAmount);
-    localStorage.setItem("balance",balance);
-    document.getElementById("balance").innerText="Balance: NGN "+balance;
-    alert(`Cashout successful! You won NGN ${Math.floor(winAmount)}`);
-    activeBets.splice(index,1);
-    updateBetslip();
-}
-
-// --- Live Odds based on score simulation ---
-function fluctuateOdds(){
-    activeBets.forEach(b=>{
-        // simple odds adjustment: if home is winning, home odds drop slightly
-        let change = 0;
-        if(b.team==="CPE") change = -0.05*homeScore + (Math.random()*0.02-0.01);
-        else if(b.team==="BMG") change = -0.05*awayScore + (Math.random()*0.02-0.01);
-        else change = (Math.random()*0.05-0.025);
-        b.currentOdd = Math.max(1.01,b.currentOdd+change);
-    });
-    updateBetslip();
-}
-setInterval(fluctuateOdds,3000);
-
-// --- Simulate Match ---
-function startMatch(duration=90){ // 90 minutes simulated
-    clearInterval(matchInterval);
-    matchMinute=0;
-    homeScore=0;
-    awayScore=0;
-    updateScoreboard();
-    matchInterval=setInterval(()=>{
-        matchMinute++;
-        // Random goals for demo
-        if(Math.random()<0.05) homeScore++;
-        if(Math.random()<0.03) awayScore++;
-        updateScoreboard();
-    },2000); // 1 min = 2 seconds
-}
-
-// --- Floating Open Bets Button ---
-document.getElementById("openBetsBtn").addEventListener("click",()=>{
-    window.open("openbets.html","_blank");
-});
-
-// Start match automatically for demo
-startMatch();
-
 </script>
 </body>
 </html>
