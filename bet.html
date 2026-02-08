@@ -3,175 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Betting Page</title>
+<title>Bet Page</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#1e1e1e;color:#fff;}
-
-/* BALANCE */
-.balance{position:fixed;top:10px;right:10px;background:#0a7cff;padding:8px 12px;border-radius:6px;font-weight:bold;z-index:1000;}
-
-/* SCOREBOARD */
-.scorecard{background:#fff;color:#000;margin:15px auto;width:40%;min-width:280px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1);padding:15px;text-align:center;}
-.teams-row{display:flex;justify-content:space-around;align-items:center;margin-bottom:5px;}
-.team{display:flex;flex-direction:column;align-items:center;}
-.team img{width:50px;height:50px;margin-bottom:5px;}
-.team-name{font-size:14px;font-weight:bold;color:#222;}
-.score{font-size:32px;font-weight:bold;}
-.match-time{font-size:14px;color:#666;margin-bottom:10px;font-weight:500;}
-.divider{height:1px;background:#e0e0e0;margin:10px 0;}
-
-/* BETTING MARKETS */
-.betting-wrapper{width:80%;max-width:800px;margin:0 auto 100px;}
-.market{margin-bottom:20px;}
-.market-title{font-size:16px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #444;padding-bottom:5px;}
-.one-x-two{display:flex;justify-content:space-between;}
-.odd-box{flex:1;margin:0 5px;background:#2c2c2c;text-align:center;padding:15px 0;border-radius:8px;font-weight:bold;font-size:18px;cursor:pointer;transition:0.2s;}
-.odd-box:hover{background:#444;}
-.over-under,.gg-ng{width:100%;margin-top:10px;border-collapse: collapse;}
-.over-under th,.over-under td,.gg-ng th,.gg-ng td{border:1px solid #444;padding:10px;text-align:center;}
-.over-under th,.gg-ng th{font-weight:bold;}
-.over-under td,.gg-ng td{background:#2c2c2c;cursor:pointer;font-size:16px;transition:0.2s;}
-.over-under td:hover,.gg-ng td:hover{background:#444;}
-
-/* FIXED BETSLIP */
-.betslip{position:fixed;bottom:0;left:0;right:0;background:#2c2c2c;padding:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;z-index:999;display:none;}
-.bets-container{display:flex;flex-wrap:wrap;max-width:70%;overflow-x:auto;}
-.betslip-item{background:#383838;padding:8px;border-radius:6px;margin:3px;white-space:nowrap;}
-.stake-input{width:50px;padding:3px;border-radius:4px;border:none;text-align:center;margin-left:5px;}
-.place-btn{background:#0a7cff;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;color:#fff;font-weight:bold;margin-left:5px;}
-
-/* FLOATING OPEN BETS BUTTON */
-.open-bets-btn{position:fixed;bottom:80px;right:20px;background:#0a7cff;color:#fff;padding:12px 18px;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;user-select:none;}
-.open-bets-btn:hover{opacity:0.9;}
+body {
+  font-family: Arial,sans-serif;
+  background:#0f172a;
+  color:white;
+  padding:20px;
+}
+.match-card {
+  background:#fff;
+  color:#000;
+  border-radius:10px;
+  padding:16px;
+  max-width:400px;
+  margin:auto;
+  box-shadow:0 10px 20px rgba(0,0,0,0.3);
+}
+.title {font-weight:bold;text-align:center;margin-bottom:10px;}
+.odds {
+  display:flex;
+  justify-content:space-around;
+  margin:12px 0;
+}
+.odds div {
+  padding:10px;
+  border-radius:6px;
+  background:#e5e7eb;
+  cursor:pointer;
+  min-width:50px;
+  text-align:center;
+}
+.odds div.selected {
+  background:#0d6efd;
+  color:white;
+}
+.bet-slip {
+  margin-top:16px;
+  background:#161b22;
+  padding:12px;
+  border-radius:8px;
+  display:none;
+}
+.bet-slip button {
+  padding:8px 12px;
+  margin-top:6px;
+  border:none;
+  border-radius:6px;
+  background:#0f5132;
+  color:white;
+  cursor:pointer;
+}
+.floating-open {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  padding:12px 16px;
+  border-radius:50px;
+  background:#0d6efd;
+  cursor:pointer;
+  font-weight:bold;
+}
 </style>
 </head>
 <body>
 
-<div class="balance" id="balance">Balance: NGN 10000</div>
+<div class="match-card">
+  <div class="title">CPE vs BMG</div>
+  <div id="timeScore" style="text-align:center;font-weight:bold;margin-bottom:10px;">13:00</div>
 
-<!-- SCOREBOARD -->
-<div class="scorecard">
-  <div class="match-time">19'</div>
-  <div class="teams-row">
-    <div class="team">
-      <img src="https://i.ibb.co/1fgXH8TQ/file-0000000097cc71f48084d870a69383b2.png">
-      <div class="team-name">CPE</div>
-    </div>
-    <div class="score">0 - 0</div>
-    <div class="team">
-      <img src="https://i.ibb.co/93cfCTfC/file-00000000940871f4bce254a220506af2.png">
-      <div class="team-name">BMG</div>
-    </div>
+  <div class="odds">
+    <div data-odd="2.00">1</div>
+    <div data-odd="3.50">X</div>
+    <div data-odd="2.50">2</div>
   </div>
-  <div class="divider"></div>
+
+  <div class="bet-slip" id="betSlip">
+    <div id="selectedMarket">⚽ HOME @ 2.00</div>
+    <input type="number" id="stakeInput" placeholder="Stake NGN" style="margin-top:6px;padding:6px;width:100%;border-radius:4px;border:1px solid #ccc;">
+    <button onclick="placeBet()">Place Bet</button>
+  </div>
 </div>
 
-<div class="betting-wrapper">
-
-  <!-- 1X2 -->
-  <div class="market">
-    <div class="market-title">1X2</div>
-    <div class="one-x-two">
-      <div class="odd-box" data-team="CPE" data-odd="2.10">CPE<br>2.10</div>
-      <div class="odd-box" data-team="Draw" data-odd="3.00">Draw<br>3.00</div>
-      <div class="odd-box" data-team="BMG" data-odd="2.50">BMG<br>2.50</div>
-    </div>
-  </div>
-
-  <!-- OVER/UNDER -->
-  <div class="market">
-    <div class="market-title">OVER / UNDER</div>
-    <table class="over-under">
-      <tr><th>Goal</th><th>OVER</th><th>UNDER</th></tr>
-      <tr><td>0.5</td><td class="odd-box" data-team="O 0.5" data-odd="1.30">1.30</td><td class="odd-box" data-team="U 0.5" data-odd="3.50">3.50</td></tr>
-      <tr><td>1.5</td><td class="odd-box" data-team="O 1.5" data-odd="2.10">2.10</td><td class="odd-box" data-team="U 1.5" data-odd="1.70">1.70</td></tr>
-      <tr><td>2.5</td><td class="odd-box" data-team="O 2.5" data-odd="2.50">2.50</td><td class="odd-box" data-team="U 2.5" data-odd="1.80">1.80</td></tr>
-      <tr><td>3.5</td><td class="odd-box" data-team="O 3.5" data-odd="3.00">3.00</td><td class="odd-box" data-team="U 3.5" data-odd="2.20">2.20</td></tr>
-      <tr><td>4.5</td><td class="odd-box" data-team="O 4.5" data-odd="3.50">3.50</td><td class="odd-box" data-team="U 4.5" data-odd="2.50">2.50</td></tr>
-      <tr><td>5.5</td><td class="odd-box" data-team="O 5.5" data-odd="4.00">4.00</td><td class="odd-box" data-team="U 5.5" data-odd="3.00">3.00</td></tr>
-    </table>
-  </div>
-
-  <!-- GG/NG -->
-  <div class="market">
-    <div class="market-title">GG / NG</div>
-    <table class="gg-ng">
-      <tr><th>Goal+</th><th>GG</th><th>NG</th></tr>
-      <tr><td>1+</td><td class="odd-box" data-team="GG 1+" data-odd="1.90">1.90</td><td class="odd-box" data-team="NG 1+" data-odd="1.80">1.80</td></tr>
-      <tr><td>2+</td><td class="odd-box" data-team="GG 2+" data-odd="2.10">2.10</td><td class="odd-box" data-team="NG 2+" data-odd="2.00">2.00</td></tr>
-      <tr><td>3+</td><td class="odd-box" data-team="GG 3+" data-odd="2.50">2.50</td><td class="odd-box" data-team="NG 3+" data-odd="2.20">2.20</td></tr>
-      <tr><td>4+</td><td class="odd-box" data-team="GG 4+" data-odd="3.00">3.00</td><td class="odd-box" data-team="NG 4+" data-odd="2.50">2.50</td></tr>
-    </table>
-  </div>
-
-</div>
-
-<!-- BETSLIP -->
-<div class="betslip" id="betslip">
-  <div class="bets-container" id="betsContainer"></div>
-  Stake: <input type="number" id="stake" class="stake-input" value="100" min="1">
-  <button class="place-btn" id="placeBet">Place Bets</button>
-</div>
-
-<!-- FLOATING OPEN BETS -->
-<div class="open-bets-btn" id="openBetsBtn" onclick="window.location.href='openbets.html'">Open Bets</div>
+<div class="floating-open" onclick="openBets()">Open Bets</div>
 
 <script>
-// LOCAL STORAGE BALANCE
-if(!localStorage.getItem("balance")) localStorage.setItem("balance",10000);
-document.getElementById("balance").innerText="Balance: NGN "+localStorage.getItem("balance");
+// MATCH SIMULATION
+if(!localStorage.getItem("match")){
+  localStorage.setItem("match",JSON.stringify({minute:0,homeGoals:0,awayGoals:0}));
+}
+let match = JSON.parse(localStorage.getItem("match"));
+let time = match.minute;
+let homeGoals = match.homeGoals;
+let awayGoals = match.awayGoals;
 
-let selectedBets=[];
-let activeBets=JSON.parse(localStorage.getItem("activeBets")||"[]");
+// ODDS LOGIC
+let oddsDivs = document.querySelectorAll('.odds div');
+let selectedOdd = null;
 
-// UPDATE BETSLIP
-function updateBetslip(){
-  const container=document.getElementById("betsContainer");
-  container.innerHTML="";
-  selectedBets.forEach(b=>{
-    const div=document.createElement("div");
-    div.className="betslip-item";
-    div.innerText=`${b.dataset.team} @ ${b.dataset.odd}`;
-    container.appendChild(div);
+oddsDivs.forEach(div => {
+  div.addEventListener('click',()=>{
+    if(selectedOdd === div){
+      div.classList.remove('selected');
+      selectedOdd = null;
+      document.getElementById('betSlip').style.display='none';
+    } else {
+      oddsDivs.forEach(d=>d.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedOdd = div;
+      document.getElementById('selectedMarket').innerText = `⚽ ${div.innerText} @ ${div.dataset.odd}`;
+      document.getElementById('betSlip').style.display='block';
+    }
   });
+});
+
+// BET LOGIC
+function placeBet(){
+  let stake = parseInt(document.getElementById('stakeInput').value);
+  if(!stake || !selectedOdd) return alert("Select odd and enter stake");
+  let activeBets = JSON.parse(localStorage.getItem('activeBets')||"[]");
+  activeBets.push({
+    team:"HOME",
+    market:selectedOdd.innerText,
+    stake:stake,
+    odd:parseFloat(selectedOdd.dataset.odd),
+    status:"pre-match"
+  });
+  localStorage.setItem('activeBets',JSON.stringify(activeBets));
+  alert("Bet placed!");
+  document.getElementById('betSlip').style.display='none';
+  document.getElementById('stakeInput').value='';
+  oddsDivs.forEach(d=>d.classList.remove('selected'));
+  selectedOdd=null;
 }
 
-// SELECT / DESELECT ODDS
-document.querySelectorAll(".odd-box").forEach(box=>{
-  box.addEventListener("click",()=>{
-    const betslip=document.getElementById("betslip");
-    betslip.style.display="flex"; // show betslip when selecting
-    if(selectedBets.includes(box)){
-      box.style.background="#2c2c2c";
-      selectedBets=selectedBets.filter(b=>b!==box);
-    } else {
-      box.style.background="#0a7cff";
-      selectedBets.push(box);
-    }
-    updateBetslip();
-    if(selectedBets.length===0) betslip.style.display="none";
-  });
-});
+// OPEN BETS
+function openBets(){
+  window.open('openbets.html','_blank');
+}
 
-// PLACE BET
-document.getElementById("placeBet").addEventListener("click",()=>{
-  const stake=parseInt(document.getElementById("stake").value);
-  if(selectedBets.length===0){ alert("No bets selected"); return; }
-  let balance=parseInt(localStorage.getItem("balance"));
-  const totalStake=stake*selectedBets.length;
-  if(totalStake>balance){ alert("Insufficient balance"); return; }
-  balance-=totalStake;
-  localStorage.setItem("balance",balance);
-  document.getElementById("balance").innerText="Balance: NGN "+balance;
+// SIMULATION TIMER
+function simulateMatch(){
+  if(time === 10) homeGoals=1;
+  if(time === 30) homeGoals=2;
+  if(time === 60) awayGoals=1;
 
-  selectedBets.forEach(b=>{
-    activeBets.push({team:b.dataset.team, odd:b.dataset.odd, stake:stake, status:"pre-match"});
-    b.style.background="#2c2c2c";
-  });
-  selectedBets=[];
-  localStorage.setItem("activeBets",JSON.stringify(activeBets));
-  document.getElementById("betslip").style.display="none";
-});
+  let timeText;
+  if(time===0) timeText="13:00";
+  else if(time>=90) timeText=`FT | ${homeGoals}:${awayGoals}`;
+  else timeText=`${time}' | ${homeGoals}:${awayGoals}`;
+  
+  document.getElementById('timeScore').innerText = timeText;
+  
+  match={minute:time,homeGoals,awayGoals};
+  localStorage.setItem('match',JSON.stringify(match));
+
+  if(time<90) time++;
+}
+
+setInterval(simulateMatch,1000);
 </script>
 
 </body>
